@@ -1,0 +1,52 @@
+
+#navul li{
+    display:inline;
+    margin-left: 15px;
+}
+#navul li:hover{
+    border-bottom: 1px solid black;
+}
+.navlink{
+    color: black;
+}
+.myinput{
+    background-color:transparent;
+    border: 1px solid black;
+}
+#mybtnupdate{
+    color: white;
+    background-color:rgb(161, 30, 30);
+    border: none;
+    font-size:0.9em
+}
+
+// drag and drop css 
+
+
+#root > div > div.layout-main > div > div.col-md-4.ms-5 > div.d-flex > span > div{
+    display: flex;
+    justify-content: flex-end;
+    height:150px;
+    width: 350px;
+}
+
+
+#root > div > div.layout-main > div > div.row > span > div {
+    display: flex;
+    justify-content: flex-end;
+    margin-top:15px;
+    margin-right: 29px;
+}
+
+
+
+#root > div > div.layout-main > div > div.row > span > div > div {
+    width: 9%;
+    height:5%;
+}
+
+
+#root > div > div.layout-main > div > div.row > span > div > div.ant-upload.ant-upload-select.ant-upload-select-picture-card {
+    height: 73px;
+    padding : 33px;
+}

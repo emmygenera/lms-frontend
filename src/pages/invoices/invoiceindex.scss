@@ -1,0 +1,64 @@
+.vlinkbtn{
+    background-color: rgb(226, 223, 223);
+    color: green;
+    border-radius:1em;
+    padding: 0.5em;
+}
+#vsearchinput{
+    border-radius:1em;
+    border:0.1em solid lightgray;
+    background-color: transparent;
+    margin-left: 1em;
+    padding-left: 20px;
+}
+.vsearchicon{
+    font-size:1.5em
+}
+#vbtnedit{
+    color: black;
+    background-color:rgb(211, 214, 50);
+    border: 0 none;
+    border-radius:1em;
+    padding:5px 20px 5px 20px;
+    margin-left: 8px;
+}
+#vbtndelete{
+    color: white;
+    background-color:rgb(214, 61, 50);
+    border: none;
+    border-radius:1em;
+    padding:5px 15px 5px 15px;
+    margin-left: 8px;
+}
+
+@media screen and (max-width:835px){
+    #vbtndelete, #vbtnedit{
+        font-size: .6rem;
+        padding:.3rem 1rem .3rem 1rem;
+        border-radius:1rem;
+    }
+    .vlinkbtn{
+        
+        border-radius:1rem;
+        padding: 0.5rem;
+        font-size: .5rem;
+    }
+    #vsearchinput{
+        border-radius:1rem;
+        margin-left: 1rem;
+        padding-left: 1rem;
+        font-size: .6rem;
+    }
+    .vsearchicon{
+        font-size:1em
+    }
+}
+@media screen and(max-width:577px) {
+ 
+    .hidediv{
+        display:none
+    }
+    .col2{
+        margin-top:20px
+    }
+}

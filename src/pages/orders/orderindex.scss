@@ -1,0 +1,16 @@
+.linkbtn{
+    
+    color: green;
+    border-radius:1em;
+    margin-bottom: 20px;
+    padding: 1em;
+}
+@media screen and(max-width:835px) {
+    .linkbtn{
+        font-size:0.5em;
+        margin-bottom:20px;
+        margin-top:10px
+    }
+}
+    
+

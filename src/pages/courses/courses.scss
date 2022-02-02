@@ -1,0 +1,63 @@
+#navul li {
+    display: inline;
+    margin-left: 15px;
+}
+#navul li:hover {
+    border-bottom: 1px solid black;
+}
+.navlink {
+    color: black;
+}
+#addcoursespan {
+    border-radius: 20px;
+    background-color: rgb(229, 226, 226);
+    float: right;
+    height: 35px;
+}
+#addcourselink {
+    color: green;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+#addcourselink:hover {
+    border-bottom: 1px solid black;
+}
+#addcourseicon {
+    font-size: 1.5em;
+    color: green;
+    padding-left: 10px;
+}
+.categorylink {
+    font-size: 0.8em;
+    padding-top: 2px;
+    margin-left: 8px;
+    color: black;
+}
+#divdrop {
+    margin-top: -25px;
+}
+#btndrop {
+    background-color: transparent;
+    color: green;
+    border: none;
+}
+
+@media screen and (max-width: 575px) {
+    #addcourselink {
+        color: green;
+        font-size: 0.5em;
+        font-weight: bold;
+    }
+    #addcourseicon {
+        font-size: 1em;
+        color: green;
+    }
+    #addcoursespan {
+        border-radius: 20px;
+        background-color: rgb(229, 226, 226);
+        float: right;
+        height: 20px;
+    }
+}

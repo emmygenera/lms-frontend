@@ -1,0 +1,5 @@
+{
+    "API_URL": "https://ezeetrader.herokuapp.com/api/",
+    "BASE_URL": "https://ezeetrader.herokuapp.com",
+    "API_URL2": "http://localhost:9090/api/"
+}

@@ -1,0 +1,43 @@
+.course-info {
+    background-color: #fffcfc;
+    margin-bottom: 1px;
+}
+
+#order {
+    margin-top: 100px;
+}
+
+.trading {
+    display: flex;
+    align-items: center;
+}
+.trading p {
+    margin-right: 5px;
+    padding-right: -5px;
+    padding-left: 3px;
+}
+
+#button {
+    border: solid 1px blanchedalmond;
+}
+
+#ccc {
+    width: "30px";
+    height: "30px";
+    color: white;
+}
+
+.payment-method {
+    position: relative;
+}
+
+.payment-icon {
+    position: absolute;
+    top: 79px;
+    right: 10px;
+}
+
+.icon-payment {
+    margin-right: 5px;
+    cursor: pointer;
+}

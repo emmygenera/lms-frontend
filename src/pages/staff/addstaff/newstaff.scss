@@ -1,0 +1,20 @@
+#navul li{
+    display:inline;
+    margin-left: 15px;
+}
+#navul li:hover{
+    border-bottom: 1px solid black;
+}
+.navlink{
+    color: black;
+}
+.myinput{
+    background-color:transparent;
+    border: 1px solid black;
+}
+#mybtnupdate{
+    color: white;
+    background-color:rgb(161, 30, 30);
+    border: none;
+    font-size:0.9em
+}

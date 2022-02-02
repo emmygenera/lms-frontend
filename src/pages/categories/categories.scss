@@ -1,0 +1,37 @@
+#catnav {
+    --bs-bg-opacity: 1;
+    background-color: transparent !important;
+    margin-left: -30px !important;
+}
+
+.linkbtn{
+    
+    color: green;
+    border-radius:1em;
+    padding: 1em;
+}
+#navul li{
+    display:inline;
+    margin-left: 15px;
+}
+.navlink:hover{
+    border-bottom: 1px solid black;
+}
+.navlink{
+    color: black;
+}
+#btnupdate{
+    border-radius:5px;
+    background-color:rgb(161, 30, 30);
+    color: white;
+    border: 0 none;
+    padding: 5px;
+
+}
+@media screen and(max-width:835px) {
+    .linkbtn{
+        font-size:0.5em;
+        margin-bottom:20px;
+        margin-top:10px
+    }
+}

@@ -1,0 +1,38 @@
+#mynavul li{
+    margin-left: 7px;
+    font-size:0.8em
+}
+#mynavlink:hover{
+    border-bottom: 1px solid black;
+}
+.mynavlink{
+    color: black;
+}
+.input{
+    background-color: transparent;
+    margin-bottom:"40px"
+
+}
+#myaddbtn, #mybtnupdate{
+    color: white;
+    background-color:rgb(161, 30, 30);
+    border: none;
+    font-size:0.9em
+}
+.myinput{
+    background-color:transparent;
+    border: 1px solid black;
+}
+#pricediv{
+    width:70px;
+    margin-top: -25px;
+    margin-left: 55px;
+    margin-bottom: 20px;
+    border-radius: 1em;
+    background-color:rgb(198, 243, 198);
+    color:green;
+}
+#pricediv p{
+    padding: 5px 15px 5px 15px;
+    font-weight: bold;
+}

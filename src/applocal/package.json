@@ -1,0 +1,11 @@
+{
+    "name": "applocal",
+    "version": "1.0.0",
+    "main": "index",
+    "files": [
+        "src/*"
+    ],
+    "engines": {
+        "node": ">=10.0.0"
+    }
+}

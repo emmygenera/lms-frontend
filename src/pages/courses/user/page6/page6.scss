@@ -1,0 +1,207 @@
+
+@media screen and (min-width:768px){
+    .div1{
+        height: 300px;
+        background-image: linear-gradient(to top, black ,#BFBFBF);
+        border-radius:0.7em;
+        position: relative
+    }
+    .div1p1{
+        font-weight: bold;
+        color: white;
+        position: relative;
+        top: 140px;
+        left: 5px;
+    }
+    .div1p2{
+        color: white;
+        position: absolute;
+        top:200px;
+        left: 15px;
+        font-size:0.8em
+    
+    }
+    .div1select{
+        position: absolute;
+        top: 225px;
+        left: 15px;
+        border:none;
+    }
+    .div1btn{
+        background-color: rgb(161, 30, 30);
+        color: white;
+        border-radius:1em;
+        border: none;
+        padding: 5px 25px 5px 25px;
+        position:absolute;
+        top: 220px;
+        left: 200px;
+        
+    
+    }
+    .div1icon{
+        color:white;
+        border: 1px solid white;
+        position:absolute;
+        top: 215px;
+        right: 30px;
+    }
+    .div2h6{
+        margin-bottom: 0px;
+    }
+    #dollaricon{
+        position:absolute;
+        top:2em;
+        left:-0.7em
+    }
+    #dollarp{
+        position:absolute;
+        top: 2.5em;
+        left:1.3em
+    }
+    #dollarh{
+        position:absolute;
+        top: 2.5em;
+        left:1em;
+        font-weight: bold;
+    }
+    #calendericon{
+        position:absolute;
+        top: 4.2em;
+        left: -0.7em;
+        
+    }
+    #calenderp{
+        position:absolute;
+        top: 6em;
+        left: 1.3em;
+    }
+    #calenderh{
+        position:absolute;
+        top: 5.9em;
+        left: 1em;
+        font-weight: bold;
+    }
+    #locationicon{
+        position:absolute;
+        top:7em;
+        left: -0.7em;
+    }
+    #locationp{
+        position:absolute;
+        top:10em;
+        left:1.3em
+    }
+    #locationh{
+        position:absolute;
+        top:10em;
+        left:1em;
+        font-weight: bold;
+    }
+
+}
+
+@media screen and (max-width:767px){
+    .div1{
+        height: 300px;
+        background-image: linear-gradient(to top, black ,#BFBFBF);
+        border-radius:0.7em;
+        position: relative
+    }
+    .div1p1{
+        font-weight: bold;
+        color: white;
+        position: relative;
+        top: 140px;
+        left: 5px;
+    }
+    .div1p2{
+        color: white;
+        position: absolute;
+        top:200px;
+        left: 15px;
+        font-size:0.8em
+    
+    }
+    .div1select{
+        position: absolute;
+        top: 225px;
+        left: 15px;
+        border:none;
+    }
+    .div1btn{
+        background-color: rgb(161, 30, 30);
+        color: white;
+        border-radius:1em;
+        border: none;
+        padding: 2px 10px 2px 10px;
+        position:absolute;
+        top: 223px;
+        left: 152px;
+        
+    
+    }
+    .div1icon{
+        color:white;
+        border: 1px solid white;
+        padding: 5px;
+        border-radius:25px;
+        position:absolute;
+        top: 215px;
+        right: 30px;
+    }
+    .div2div2{
+        height:100px;
+        display: flex;
+        flex-direction: row;
+        
+    }
+    
+    #dollaricon{
+        position:absolute;
+        top: 8px;
+        
+    }
+    #dollarp{
+        position:absolute;
+        left:2em;
+
+    }
+    #dollarh{
+        position:absolute;
+        left:1.5em;
+        font-weight: bold;
+    }
+    #calendericon{
+        position:absolute;
+        left:7em;
+        top: 8px;
+        
+        
+    }
+    #calenderp{
+        position:absolute;
+        left: 13em;
+    }
+    #calenderh{
+        position:absolute;
+        left:13em;
+        font-weight: bold;
+    }
+    #locationicon{
+        position:absolute;
+        left:15em;
+        top:8px;
+        
+    }
+    #locationp{
+        position:absolute;
+        left:25em;
+    }
+    #locationh{
+        position:absolute;
+        left:25em;
+        font-weight: bold;
+    }
+
+}

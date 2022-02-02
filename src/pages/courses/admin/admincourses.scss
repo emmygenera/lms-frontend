@@ -1,0 +1,68 @@
+.bg-light {
+    --bs-bg-opacity: 1;
+    background-color: transparent !important;
+    margin-left: -10px !important;
+}
+
+.addmycourse{
+    color: green;
+    
+    background-color:#f3f2f2;
+    text-align: center;
+    padding: 10px 0px;
+    border-radius: 1em;
+    margin-top: -10px;
+    
+}
+
+.addmycourse:hover{
+    color: rgb(88, 88, 182);
+}
+
+#addcourselink:hover{
+    border-bottom: 1px solid black;
+}
+#addcourseicon{
+    font-size:1.5em;
+    color:green;
+    padding-left: 5px;
+}
+.categorylink{
+    font-size: 0.8em;
+    padding-top: 2px;
+    margin-left: 8px;
+    color: black;
+}
+#divdrop{
+    margin-top: -25px;
+}
+#btndrop{
+    background-color:transparent;
+    color: green;
+    border:none;
+}
+.card:hover{
+    transform: scale(1.05);
+ box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+}  
+@media screen and (max-width:705px){
+    
+    .addmycourse{
+        font-size:0.6em;
+        margin-top: -5px;
+        
+    } 
+    .addmycourse1{
+        font-size:0.8em;
+        
+    } 
+    
+}
+@media screen and(max-width:385px) {
+    .addmycourse{
+        font-size:0.4em
+    }
+    
+}
+
+    
