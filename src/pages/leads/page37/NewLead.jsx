@@ -1,172 +1,125 @@
-import { Button } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import React, { useState } from "react";
 import { Row, Col } from "react-bootstrap";
+import { toCapitalize } from "../../../applocal";
+import CountryList from "../../../components/CountriesDropdown";
+import LoadingAnim from "../../../components/LoadingAnim";
 import Lead from "../../../services/leads";
-const NewLead = ({ history }) => {
-    const [lead, setLead] = React.useState({
-        name: "",
-        phone: "",
-        email: "",
-        country: "",
-        city: "",
-        address: "",
-        course: "",
-        privateNote: "",
-    });
-    const [loading, setLoading] = useState(false);
+import qs from "query-string";
+import { toast } from "react-toastify";
+import Courses from "../../../services/courses";
+import leadStatus from "../leadStatus.json";
 
+const NewLead = ({ history, location }) => {
+  const [initVals, setInitVals] = React.useState({
+    name: "",
+    phone: "",
+    email: "",
+    country: "",
+    city: "",
+    address: "",
+    status: "",
+    course: "",
+    notes: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [is_init, setis_init] = useState(false);
 
-    const addNew = () => {
-        setLoading(true)
-        Lead.add(lead).then((result) => {
-            history.push('/leads')
-            // console.log(result)
-        }).finally(() => setLoading(false))
-    }
+  const { data: paramData } = qs.parse(location?.search, { parseFragmentIdentifier: true });
 
-    return (
-        <>
-            <div className="shadow-sm p-3 row mt-md-5">
-                <div className=" col-md-7">
-                    <h5 className="offset-sm-3 mb-3 mt-5">
-                        <b>Lead Information</b>
-                    </h5>
-                    <div className="row mb-2 mt-3">
-                        <p className="col-sm-4 text-sm-end">Name</p>
-                        <div className="col-sm-7">
-                            <input
-                                type="text"
-                                className="form-control myinput"
-                                value={lead.name}
-                                onChange={(e) => setLead({ ...lead, name: e.target.value })}
+  async function getLeadsData() {
+    const {
+      data: { data: tipsData },
+    } = await Lead.getSingle(paramData).catch(() => toast.error("unable to get Leads data"));
+    setInitVals(tipsData);
+    setis_init(true);
+  }
+  async function getCourses() {
+    const {
+      data: { data: tipsData },
+    } = await Courses.getAll(paramData).catch(() => toast.error("unable to get Leads data"));
+    setCourses(tipsData);
+  }
 
-                            />
-                        </div>
-                    </div>
-                    <div className="row mb-2 mt-3">
-                        <p className="col-sm-4 text-sm-end">Phone</p>
-                        <div className="col-sm-7">
-                            <input
-                                type="text"
-                                className="form-control myinput"
-                                value={lead.phone}
-                                onChange={(e) => setLead({ ...lead, phone: e.target.value })}
+  const addNew = (vals) => {
+    setLoading(true);
+    const sd = paramData ? "update" : "add";
+    Lead[sd]({ data: vals, id: paramData })
+      .then((result) => {
+        history.push("/leads");
+        // console.log(result)
+      })
+      .finally(() => setLoading(false));
+  };
+  React.useEffect(() => {
+    if (!paramData) {
+      setis_init(true);
+    } else getLeadsData();
+    getCourses();
+  }, []);
+  if (!is_init) {
+    return <LoadingAnim />;
+  }
 
-                            />
-                        </div>
-                    </div>
-                    <div className="row mb-2 mt-3">
-                        <p className="col-sm-4 text-sm-end">Email</p>
-                        <div className="col-sm-7">
-                            <input
-                                type="text"
-                                className="form-control myinput"
-                                value={lead.email}
-                                onChange={(e) => setLead({ ...lead, email: e.target.value })}
+  return (
+    <>
+      <div className="shadow-sm p-3 row mt-md-5">
+        <div className=" col-md-7">
+          <h5 className="offset-sm-3 mb-3 mt-5">
+            <b>Lead Information</b>
+          </h5>
+          <style jsx>
+            {`
+              .ant-form-item-label.ant-form-item-label-left {
+                text-align: right;
+              }
+            `}
+          </style>
+          <Form name="wrap" className="resize-450" labelCol={{ flex: "130px" }} labelAlign="left" labelWrap wrapperCol={{ flex: 1 }} colon={false} layout="horizontal" onFinish={addNew} initialValues={initVals}>
+            <Form.Item label="Name" className="text-right" name="name" rules={[{ required: true }]}>
+              <Input className="myinput" />
+            </Form.Item>
+            <Form.Item label="Phone" name="phone" rules={[{ required: true }]}>
+              <Input className="myinput" />
+            </Form.Item>
+            <Form.Item label="Email" name="email" rules={[{ required: true }]}>
+              <Input className="myinput" />
+            </Form.Item>
+            <CountryList className="myinput" isRequired={false} />
 
-                            />
-                        </div>
-                    </div>
-                    <div className="row mb-2">
-                        <p className=" col-sm-4 text-sm-end">Country</p>
-                        <div className="col-sm-7">
-                            <select
-                                className="form-control form-select myinput"
-                                value={lead.country}
-                                onChange={(e) => setLead({ ...lead, country: e.target.value })}
-                            >
-                                <option value="" selected>
-                                    Please select a country
-                                </option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="row mb-2">
-                        <p className=" col-sm-4 text-sm-end">City</p>
-                        <div className="col-sm-7">
-                            <select
-                                className="form-control form-select myinput"
-                                value={lead.city}
-                                onChange={(e) => setLead({ ...lead, city: e.target.value })}
-                            >
-                                <option value="" selected>
-                                    Please select a city
-                                </option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="row mb-2">
-                        <p className=" col-sm-4 text-sm-end">Address</p>
-                        <div className="col-sm-7">
-                            <input
-                                className="form-control myinput"
-                                type="text"
-                                value={lead.address}
-                                onChange={(e) => setLead({ ...lead, address: e.target.value })}
+            <Form.Item label="Please a Course" name="courseId" rules={[{ required: true }]}>
+              <Select className="myinput" defaultValue={"Select a course"}>
+                {courses.map((item) => (
+                  <Select.Option value={item._id}>{toCapitalize(item.name)}</Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item label="Status" name="status" rules={[{ required: true }]}>
+              <Select className="myinput" defaultValue={"Select status"}>
+                {leadStatus.map((itm) => (
+                  <Select.Option key={itm.value} value={itm.value}>
+                    {itm.text}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item label="Address" name="address" rules={[{ required: false }]}>
+              <Input className="myinput" />
+            </Form.Item>
+            <Form.Item label="Private Notes" name="notes" rules={[{ required: false }]}>
+              <Input.TextArea className="myinput" />
+            </Form.Item>
+            <Form.Item>
+              <Button className="mt-2 col-4 offset-sm-4 btnupdate" type="primary" danger backgroundColor={"red"} htmlType="submit" loading={loading} id="mybtnupdate">
+                {paramData ? "Update Lead" : "Add Lead"}
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      </div>
 
-                            />
-                        </div>
-                    </div>
-                    <div className="row mb-2">
-                        <p className=" col-sm-4 text-sm-end">Please a Course</p>
-                        <div className="col-sm-7">
-                            <select
-                                className="form-control form-select myinput"
-                                value={lead.course}
-                                onChange={(e) => setLead({ ...lead, course: e.target.value })}
-                            >
-                                <option value="" selected>
-                                    Please select Interested Course
-                                </option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">2</option>
-                                <option value="4">3</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="row mb-2">
-                        <p className="col-sm-4 text-sm-end">Private Notes</p>
-                        <div className="col-sm-7">
-                            <textarea
-                                rows="4"
-                                className="form-control myinput"
-                                value={lead.privateNote}
-                                onChange={(e) => setLead({ ...lead, privateNote: e.target.value })}
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-2 col-md-1 offset-sm-4  offset-md-4">
-                            {/* <button id="btnupdate">Update</button> */}
-                            <Button
-                                // className='mt-2 col-2 offset-sm-4'
-                                type="primary"
-                                danger
-                                backgroundColor={'red'}
-                                onClick={addNew}
-                                loading={loading}
-                                id="btnupdate"
-                            >
-                                Update
-                            </Button>
-                        </div>
-                        <div className="col-3">
-                            <button id="btnupdate">New order</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* <Row className="shadow-sm  p-4" style={{ backgroundColor: "#FFFFFF" }}>
+      {/* <Row className="shadow-sm  p-4" style={{ backgroundColor: "#FFFFFF" }}>
                 <Col md={4} sm={6} className="offset-sm-1 mt-4">
                     <h5 style={{ paddingTop: "50px" }}>
                         <b>Lead Information</b>
@@ -255,8 +208,8 @@ const NewLead = ({ history }) => {
                     </form>
                 </Col>
             </Row> */}
-        </>
-    );
+    </>
+  );
 };
 
 export default NewLead;

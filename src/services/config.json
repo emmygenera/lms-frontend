@@ -1,5 +1,8 @@
 {
-    "API_URL": "https://ezeetrader.herokuapp.com/api/",
-    "BASE_URL": "https://ezeetrader.herokuapp.com",
+    "API_URL": "//ezeetradersapp.herokuapp.com/api/",
+    "BASE_URL": "//ezeetradersapp.herokuapp.com",
+    "API_URL_": "http://13.233.246.19:5020/api/",
+    "BASE_URL_": "http://13.233.246.19:5020",
+    "PAYMENT_URL": "https://ez-payment.herokuapp.com/",
     "API_URL2": "http://localhost:9090/api/"
 }

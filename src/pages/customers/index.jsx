@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { Pagination, Table } from "antd";
+import { Pagination, Popconfirm, Table } from "antd";
 import "./customerindex.scss";
 
 import Customer from "../../services/customer";
@@ -9,19 +9,35 @@ import { Row, Col } from "react-bootstrap";
 import moment from "moment";
 import qs from "query-string";
 import { toast } from "react-toastify";
+import User from "../../services/user";
+import orderService from "../../services/orders";
+import { alphabetIndex, arrayObjectMerge, DateTime, jsonValue, nullNumber } from "../../applocal";
+import PaginatedTable from "../../components/PaginatedTable";
 
 const Customers = (props) => {
   const history = useHistory();
   const params = qs.parse(props.location.search, { ignoreQueryPrefix: true });
   const [data, setDate] = useState([]);
   const [page, setPage] = useState(params.page || 1);
-  const [pageSize, setPageSize] = useState(params.pageSize || 5);
+  const [pageSize, setPageSize] = useState(params.pageSize || 15);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [OrdersLoading, setOrdersLoading] = useState(false);
   const [search, setSearch] = useState(params.query || "");
   const [nameFilters, setNameFilters] = useState([]);
   const [courseFilters, setCourseFilters] = useState([]);
   const [statusFilters, setStatusFilters] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  const [filters, setFilters] = useState({
+    phone: [],
+    email: [],
+    name: [],
+    courses: [],
+  });
+  function _setFilter(key = filters, value = {}) {
+    setFilters((s) => ({ ...s, [key]: arrayObjectMerge(s[key], [value], "value") }));
+  }
 
   useEffect(() => {
     getData();
@@ -42,20 +58,67 @@ const Customers = (props) => {
   };
 
   const updateCus = (data) => props.history.push(`/newCustomer?data=${data}`);
-  const actions = (customer) => <Actions component={customer} deleteFun={deleteCus} updateFun={() => updateCus(JSON.stringify(customer))} />;
+  const actions = (customer) => <Actions component={customer} onView={() => props.history.push("customerOverview?data=" + customer?._id)} deleteFun={deleteCus} updateFun={() => updateCus(customer?._id)} />;
 
   const getData = () => {
     setLoading(true);
     props.history.push(`?page=${page}&pageSize=${pageSize}`);
-    Customer.getPaginated(page, pageSize)
-      .then(({ data: { customers, total } }) => {
+    // Customer
+    User.getPaginated(page, pageSize)
+      .then(({ data: { data: customers, total } }) => {
         setTotal(total);
-        setDate(customers.map((customer, index) => ({ ...customer, status: "Active", completion: "60%", courses: "Live Trading Courses", index: index + 1, actions: actions(customer), date: moment(customer.createdAt).format("L") })));
+        setOrdersLoading(true);
+        Promise.all(customers.map((customer, index) => orderService.myOrders({ id: customer._id })))
+          .then((data) => {
+            const obj = {};
+            data.map(({ data: { data = [] } }) => {
+              data.map((item) => {
+                obj[item?.userId] = jsonValue(obj, 0).get("userId") + (item?.courses?.length || 0);
+              });
+            });
+            setResData(customers, obj);
+          })
+          .catch(() => setResData(customers))
+          .finally(() => setOrdersLoading(false));
+
+        customers.map((itm, index) => {
+          _setFilter("phone", { text: itm?.phone, value: itm?.phone });
+          _setFilter("email", { text: itm?.email, value: itm?.email });
+          _setFilter("name", { text: itm?.name, value: itm?.name });
+        });
+
         setNameFilters(customers.map(({ name }) => ({ value: name, text: name })));
         setCourseFilters(customers.map(({ course }) => ({ value: course, text: course })));
         setStatusFilters(customers.map(({ status }) => ({ value: status, text: status })));
       })
       .finally(() => setLoading(false));
+    function setResData(customers = [], obj = []) {
+      setDate(
+        customers.map((customer, index) => {
+          _setFilter("courses", { text: obj[customer._id] || 0, value: obj[customer._id] || 0 });
+          return {
+            ...customer,
+            status: customer?.status == 1 ? "Active" : "Deactived",
+            name: customer?.name || String(customer?.email).split("@").at(0),
+            completion: "",
+            courses: obj[customer._id] || 0,
+            index: index + 1,
+            //
+            actions: actions(customer),
+            date: moment(customer.createdAt).format("L"),
+          };
+        })
+      );
+    }
+  };
+
+  const deleteAll = async () => {
+    Promise.all(selectedRowKeys.map((_id) => Customer.deleteCustomer(_id))).then(() => {
+      setDate((_data) => [..._data.filter(({ _id }) => !selectedRowKeys.some((id) => _id == id))]);
+      setSelectedRowKeys([]);
+
+      toast.success("Successfully deleted");
+    });
   };
 
   const columns = [
@@ -67,41 +130,60 @@ const Customers = (props) => {
     {
       title: "Join Date",
       dataIndex: "date",
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => {
+        return nullNumber(String(b.date).replace("/"), DateTime(b.date).getTime());
+      },
     },
 
     {
       title: "customer Name",
       dataIndex: "name",
-      filters: nameFilters,
-      // specify the condition of filtering result
-      // here is that finding the name started with `value`
+      filters: filters.name,
       onFilter: (value, record) => record.name.startsWith(value),
-      sorter: (a, b) => a.name.length - b.name.length,
-      sortDirections: ["descend"],
+      filterSearch: true,
+      // sorter: (a, b) => alphabetIndex(String(a.name).charAt(0)),
+      // sortDirections: ["descend"],
     },
     {
-      title: "Active courses",
+      title: "Email",
+      dataIndex: "email",
+      filters: filters.email,
+      onFilter: (value, record) => record.email.startsWith(value),
+      filterSearch: true,
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+      filters: filters.phone,
+      onFilter: (value, record) => record.phone.startsWith(value),
+
+      filterSearch: true,
+    },
+    {
+      title: "Active Courses Counts",
       dataIndex: "courses",
-      filters: courseFilters,
-      onFilter: (value, record) => record.course.startsWith(value),
-    },
-    {
-      title: "Completion percentage",
-      dataIndex: "completion",
-      sorter: (a, b) => a.age - b.age,
+      filters: filters.courses,
+      onFilter: (value, record) => record.courses.startsWith(value),
+      filterSearch: true,
     },
 
     {
       title: "Status",
       dataIndex: "status",
-      filters: statusFilters,
+      filters: [
+        {
+          text: "Active",
+          value: "active",
+        },
+        {
+          text: "DeActive",
+          value: "deactive",
+        },
+      ],
       onFilter: (value, record) => record.status.startsWith(value),
+      filterSearch: true,
     },
-    {
-      title: "Phone",
-      dataIndex: "phone",
-    },
+
     {
       title: "Action",
       dataIndex: "actions",
@@ -124,25 +206,39 @@ const Customers = (props) => {
               <i class="bi bi-search" id="sicon"></i>
             </Col>
             <Col sm={6} md={5}>
-              <button id="cbtndelete" style={{ float: "right" }}>
-                Delete
-              </button>
-              <button id="cbtnedit" style={{ float: "right" }}>
+              <Popconfirm title="Confirm Delete" onConfirm={deleteAll}>
+                <button id="sbtndelete" disabled={selectedRowKeys.length < 1} style={{ float: "right" }}>
+                  Delete
+                </button>
+              </Popconfirm>
+              {/* <button id="cbtnedit" style={{ float: "right" }}>
                 Edit
-              </button>
-              <button id="cbtnactive" style={{ float: "right" }}>
+              </button> */}
+              {/* <button id="cbtnactive" disabled={selectedRowKeys.length < 1} style={{ float: "right" }}>
                 <h6 id="cicon" style={{ display: "inline", marginRight: "2px" }}>
                   <i class="bi bi-check2-square" style={{ color: "green" }}></i>
                 </h6>
                 Active
-              </button>
+              </button> */}
             </Col>
           </Row>
         </Col>
       </Row>
       <div className="mt-3 p-4">
-        <Table columns={columns} dataSource={data} pagination={false} loading={loading} />
-        <CustomPagination total={total} page={page} pageSize={pageSize} setPage={setPage} setPageSize={setPageSize} />
+        <PaginatedTable //
+          columns={columns}
+          setSelectedRowKeys={setSelectedRowKeys}
+          selectedRowKeys={selectedRowKeys}
+          data={data}
+          pagination={false}
+          loading={loading || OrdersLoading}
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          setPage={setPage}
+          setPageSize={setPageSize}
+        />
+        {/* <CustomPagination total={total} page={page} pageSize={pageSize} setPage={setPage} setPageSize={setPageSize} /> */}
       </div>
     </>
   );

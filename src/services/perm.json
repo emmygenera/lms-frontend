@@ -1,0 +1,12 @@
+{
+    "admin": [
+        "*"
+    ],
+    "financial": [],
+    "staff": [],
+    "user": [],
+    "customer": [],
+    "instructor": [],
+    "manager": [],
+    "marketing": []
+}

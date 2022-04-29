@@ -1,47 +1,65 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import './newinstructor.scss'
-import { Row, Col } from 'react-bootstrap'
-import { Button, Form, Input } from 'antd'
-import PicturesWall from '../../../components/upload'
-import Instructor from '../../../services/instructor'
-import Country from '../../../components/CountriesDropdown'
-import { getCountryName } from '../../../utils/getCities'
-import qs from 'query-string'
-import { EmjsF } from '../../../applocal'
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import "./newinstructor.scss";
+import { Row, Col } from "react-bootstrap";
+import { Button, Form, Input, Select } from "antd";
+import PicturesWall from "../../../components/upload";
+import Instructor from "../../../services/instructor";
+import Country from "../../../components/CountriesDropdown";
+import { getCountryName } from "../../../utils/getCities";
+import qs from "query-string";
+import { EmjsF, objectRemove } from "../../../applocal";
+import Customer from "../../../services/customer";
+import LoadingAnim from "../../../components/LoadingAnim";
 
 const NewInstructor = ({ history, location }) => {
-  const params = qs.parse(location.search, { ignoreQueryPrefix: true })
+  const params = qs.parse(location.search, { ignoreQueryPrefix: true });
 
-  const [loading, setLoading] = useState(false)
-  const [attachments, setImages] = useState([])
-  const [otherFieldValues, setOtherFieldValues] = useState({})
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [attachments, setImages] = useState([]);
+  const [otherFieldValues, setOtherFieldValues] = useState({});
+  const [initVals, setinitVals] = useState({});
 
   const onSetFieldValues = ({ target: { name, value } }) => {
-    setOtherFieldValues({ ...otherFieldValues, [name]: value })
+    setOtherFieldValues({ ...otherFieldValues, [name]: value });
+  };
+
+  const paramData = params && params.data;
+  // const initVals = params && params.data ? JSON.parse(params.data) : null;
+  function getSingleInst() {
+    setFetching(true);
+    Customer.getSingle(paramData)
+      .then(({ data: { data } }) => setinitVals(objectRemove(data, ["password"])))
+      .finally(() => setFetching(false));
   }
 
-  const initVals = params && params.data ? JSON.parse(params.data) : null
-
   const addNew = (instructor) => {
-    instructor.country = getCountryName(instructor.country)
-    setLoading(true)
+    instructor.country = getCountryName(instructor.country);
+    setLoading(true);
 
-    const fdata = new FormData()
+    const fdata = new FormData();
     EmjsF({ ...instructor, files: attachments }).objList(({ key, value }) => {
-      fdata.append(key, value)
-    })
+      fdata.append(key, value);
+    });
     if (initVals) {
-      const insid = initVals._id
-      fdata.append('id', insid)
+      const insid = initVals._id;
+      fdata.append("id", insid);
       Instructor.updateOne(fdata, insid)
-        .then((result) => history.push('/instructor'))
-        .finally(() => setLoading(false))
+        .then((result) => history.push("/instructor"))
+        .finally(() => setLoading(false));
     } else {
       Instructor.add(fdata)
-        .then((result) => history.push('/instructor'))
-        .finally(() => setLoading(false))
+        .then((result) => history.push("/instructor"))
+        .finally(() => setLoading(false));
     }
+  };
+  useEffect(() => {
+    getSingleInst();
+  }, []);
+
+  if (fetching) {
+    return <LoadingAnim />;
   }
 
   return (
@@ -51,39 +69,58 @@ const NewInstructor = ({ history, location }) => {
           <h5 className="offset-sm-3 mb-3">
             <b>Instructor Information</b>
           </h5>
-          <Form name="wrap" labelCol={{ flex: '130px' }} labelAlign="left" labelWrap wrapperCol={{ flex: 1 }} colon={false} layout="horizontal" onFinish={addNew} initialValues={initVals}>
+          <Form name="wrap" labelCol={{ flex: "130px" }} labelAlign="left" labelWrap wrapperCol={{ flex: 1 }} colon={false} layout="horizontal" onFinish={addNew} initialValues={initVals}>
             <Form.Item label="Name" name="name" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
-            <Form.Item label="Phone" name="phone" rules={[{ required: true }]}>
+            <Form.Item label="Phone" name="phone" rules={[{ required: false }]}>
               <Input />
             </Form.Item>
             <Form.Item label="Email" name="email" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
-            <Country />
             <Form.Item label="Password" name="password" rules={[{ required: true }]}>
               <Input.Password />
             </Form.Item>
-            <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+            <Country isRequired={false} />
+            <Form.Item label="Status" name="status" rules={[{ required: true }]}>
+              <Select>
+                {[
+                  {
+                    key: 1,
+                    value: "Active",
+                  },
+                  {
+                    key: 0,
+                    value: "DeActive",
+                  },
+                ].map((itm, idx) => (
+                  <Select.Option key={idx} value={itm.key}>
+                    {itm.value}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item label="Address" name="address" rules={[{ required: false }]}>
               <Input />
             </Form.Item>
-            <Form.Item label="Private Note" name="private_note" rules={[{ required: true }]}>
+
+            <Form.Item label="Private Note" name="private_note" rules={[{ required: false }]}>
               <Input.TextArea />
             </Form.Item>
             <Form.Item>
-              <Button className="mt-2 col-2 offset-sm-4" type="primary" danger backgroundColor={'red'} htmlType="submit" loading={loading} id="mybtnupdate">
-                {initVals ? 'Update' : 'Add'}
+              <Button className="mt-2 col-2 offset-sm-4" type="primary" danger backgroundColor={"red"} htmlType="submit" loading={loading} id="mybtnupdate">
+                {initVals ? "Update" : "Add"}
               </Button>
             </Form.Item>
           </Form>
         </div>
         <div className="col-md-7 ">
-          <h5 className="offset-sm-2 mb-3">
+          {/* <h5 className="offset-sm-2 mb-3">
             <b>Instructor Courses</b>
           </h5>
           <div className="row mb-2">
-            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: '0.9em' }}>
+            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: "0.9em" }}>
               Live Trading Course
             </p>
             <div className="col-sm-3 align-items-center">
@@ -96,7 +133,7 @@ const NewInstructor = ({ history, location }) => {
             </div>
           </div>
           <div className="row mb-2 mt-1">
-            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: '0.9em' }}>
+            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: "0.9em" }}>
               Monetary Rules Course
             </p>
             <div className="col-sm-3 align-items-center">
@@ -110,7 +147,7 @@ const NewInstructor = ({ history, location }) => {
             </div>
           </div>
           <div className="row mb-2 mt-1">
-            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: '0.9em' }}>
+            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: "0.9em" }}>
               Angular Course
             </p>
             <div className="col-sm-3 align-items-center">
@@ -123,7 +160,7 @@ const NewInstructor = ({ history, location }) => {
             </div>
           </div>
           <div className="row mb-2 mt-1">
-            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: '0.9em' }}>
+            <p className="offset-sm-1 col-sm-4 text-sm-end mt-2" style={{ fontSize: "0.9em" }}>
               TS Script Course
             </p>
             <div className="col-sm-3 align-items-center">
@@ -134,14 +171,14 @@ const NewInstructor = ({ history, location }) => {
                 <option value="">Expiry</option>
               </select>
             </div>
-          </div>
+          </div> */}
           <div className="mt-3 offset-sm-2">
             <h5>
-              <b>Instructor Attachments</b>
+              <b>Instructor Image</b>
             </h5>
           </div>
           <div className="row">
-            <div className="col-9 py-5 ps-5 offset-sm-1 align-items-center justify-content-center mt-2 " style={{ backgroundColor: '#F2F4F5' }}>
+            <div className="col-9 py-5 ps-5 offset-sm-1 align-items-center justify-content-center mt-2 " style={{ backgroundColor: "#F2F4F5" }}>
               <div className="ps-5">
                 <PicturesWall setImages={setImages} />
               </div>
@@ -228,7 +265,7 @@ const NewInstructor = ({ history, location }) => {
                 </Col>
             </Row> */}
     </>
-  )
-}
+  );
+};
 
-export default NewInstructor
+export default NewInstructor;

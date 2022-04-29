@@ -1,3 +1,4 @@
-import AuthActions from "./auth";
+// import AuthActions from "./auth";
+import { setCartItem, setPayment, clearCartItem } from "./global";
 
-export { AuthActions };
+export { setCartItem, setPayment, clearCartItem };

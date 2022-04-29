@@ -1,96 +1,154 @@
-import isFunction from './isFunction'
-import { EmjsF } from './Emjs'
-const location = window.location
+import isFunction from "./isFunction";
+import { EmjsF } from "./Emjs";
+const location = window.location;
 export function object_extract(object = {}) {
   let ins_val = [],
-    ins_key = []
+    ins_key = [];
   for (const key in object) {
     if (Object.hasOwnProperty.call(object, key)) {
-      ins_val.push(object[key])
-      ins_key.push(key)
+      ins_val.push(object[key]);
+      ins_key.push(key);
     }
   }
   const rt = {
     key: ins_key,
     value: ins_val,
-  }
-  return rt
+  };
+  return rt;
 }
 export function baseUrl(path) {
   if (path === void 0) {
-    path = ''
+    path = "";
   }
-  let url = ''
-  const base = document.querySelector('base')
+  let url = "";
+  const base = document.querySelector("base"),
+    pname = location.pathname;
   if (base) {
-    url = base.getAttribute('href')
-  } else url = location.protocol + '//' + location.host
-
-  return url + '/' + path
+    url = base.getAttribute("href");
+    // /(^[\/]+|[\/]+$)/gi, "/";
+    // } else url = location.protocol + "//" + location.host+ "/" + location.pathname;
+  } else url = location.origin + (pname.length > 1 ? pname.replace(/\/{2,}/gi, "/") : "");
+  // console.log(url);
+  return url + "/" + path;
 }
 export function assetUrl(path) {
   if (path === void 0) {
-    path = ''
+    path = "";
   }
-  let url = ''
-  const base = document.querySelector("meta[name='asseturl']")
+  let url = "";
+  const base = document.querySelector("meta[name='asseturl']");
   if (base) {
-    url = base.getAttribute('content')
-  } else url = location.protocol + '//' + location.host
+    url = base.getAttribute("content");
+  } else url = location.protocol + "//" + location.host;
 
-  return url + '/' + path
+  return url + "/" + path;
 }
 
 export function jsonValue(object, defaultValue = null) {
   return {
     get: (key) => {
       try {
-        return typeof object[key] == 'undefined' || !Object.hasOwnProperty.call(object, key) ? defaultValue : object[key]
+        return typeof object[key] == "undefined" || !Object.hasOwnProperty.call(object, key) ? defaultValue : object[key];
       } catch (e) {}
-      return defaultValue
+      return defaultValue;
     },
     has: (key) => {
       try {
-        return typeof object[key] == 'undefined' || !Object.hasOwnProperty.call(object, key) ? false : true
+        return typeof object[key] == "undefined" || !Object.hasOwnProperty.call(object, key) ? false : true;
       } catch (e) {}
-      return false
+      return false;
     },
     toString: (key) => {
       try {
-        return EmjsF(typeof object[key] == 'undefined' || !Object.hasOwnProperty.call(object, key) ? {} : object[key]).toString()
+        return EmjsF(typeof object[key] == "undefined" || !Object.hasOwnProperty.call(object, key) ? {} : object[key]).toString();
       } catch (e) {}
-      return false
+      return false;
     },
     toStringAll: () => {
       try {
-        return EmjsF(object).toString()
+        return EmjsF(object).toString();
       } catch (e) {}
-      return '{}'
+      return "{}";
+    },
+    parse: () => {
+      try {
+        return EmjsF(object).parse();
+      } catch (e) {}
+      return {};
     },
     initObject: object,
-  }
+  };
 }
 
-export function toCapitalize(text) {
-  const kc = text.split(' ')
-  const ck = kc.map((i) => i.charAt(0).toUpperCase() + i.substring(1, i.length))
-  return ck.join(' ')
+export function toCapitalize(text = "") {
+  const kc = text.split(" ");
+  const ck = kc.map((i) => i.charAt(0).toUpperCase() + i.substring(1, i.length));
+  return ck.join(" ");
 }
-export function FormatDate(dateTime = '') {
-  const kc = dateTime.split(' ')
+export function toLowerCase(text) {
+  return String(text).toLowerCase();
+}
+export function toUpperCase(text) {
+  return String(text).toUpperCase();
+}
+export function htmlDecode(input) {
+  const doc = new DOMParser().parseFromString(String(input).search(/^<[^>]+>/gi) !== -1 ? htmlEncode(input) : input, "text/html");
+
+  const txt = doc.documentElement.textContent;
+
+  return txt;
+}
+
+export function htmlEncode(str) {
+  return String(str).replace(/[&<>"']/g, function ($0) {
+    return "&" + { "&": "amp", "<": "lt", ">": "gt", '"': "quot", "'": "#39" }[$0] + ";";
+  });
+}
+
+export function FormatDate(dateTime = "") {
+  const kc = dateTime.split(" ");
   return {
     getTime() {
-      const ck = kc.pop()
-      return ck
+      const ck = kc.pop();
+      return ck;
     },
-    getDate(replace = '/') {
+    getDate(replace = "/") {
       try {
-        const ck = kc[0]
-        return ck.replace(/-/gi, replace)
+        const ck = kc[0];
+        return ck.replace(/-/gi, replace);
       } catch (error) {}
-      return null
+      return null;
     },
+  };
+}
+export function objectRemove(object = {}, values = []) {
+  let compareValues = values,
+    data = {};
+  if (typeof values == "string") {
+    compareValues = [values];
   }
+  for (const key in object) {
+    if (Object.hasOwnProperty.call(object, key)) {
+      if (!compareValues.some((v) => v == key)) data[key] = object[key];
+    }
+  }
+  return data;
+}
+export function objectOnly(object = {}, values = []) {
+  let compareValues = values,
+    data = {};
+  if (typeof values == "string") {
+    compareValues = [values];
+  }
+  for (const key in object) {
+    if (Object.hasOwnProperty.call(object, key)) {
+      if (compareValues.some((v) => v == key)) data[key] = object[key];
+    }
+  }
+  return data;
+}
+export function toURLString(object = {}) {
+  return new URLSearchParams(object).toString();
 }
 // function object_is_equal(...args) {
 //     let val_key = {},
@@ -120,23 +178,23 @@ export function FormatDate(dateTime = '') {
  * @params updateState Object
  * */
 export function setAString(stateCopy = [], updateState_, toggle = false) {
-  let newState__ = updateState_
+  let newState__ = updateState_;
   const exestsState = stateCopy.some((item, index) => {
-    const exsts = item == updateState_
+    const exsts = item == updateState_;
     if (exsts) {
-      newState__ = { index, data: updateState_ }
+      newState__ = { index, data: updateState_ };
     } else {
-      newState__ = updateState_
+      newState__ = updateState_;
     }
-    return exsts
-  })
+    return exsts;
+  });
 
   if (exestsState) {
-    if (toggle) stateCopy = stateCopy.filter(($, idx) => idx !== newState__.index)
-    else stateCopy[newState__.index] = newState__.data
-    console.log(stateCopy)
-  } else stateCopy.push(newState__)
-  return stateCopy
+    if (toggle) stateCopy = stateCopy.filter(($, idx) => idx !== newState__.index);
+    else stateCopy[newState__.index] = newState__.data;
+    console.log(stateCopy);
+  } else stateCopy.push(newState__);
+  return stateCopy;
 }
 
 /**
@@ -146,28 +204,28 @@ export function setAString(stateCopy = [], updateState_, toggle = false) {
  * @params updateState Object
  * */
 export function setAObject(stateCopy, updateState_) {
-  let key
+  let key;
   if (EmjsF(updateState_).isJson) {
-    key = updateState_['key']
+    key = updateState_["key"];
   } else {
-    key = updateState_
+    key = updateState_;
   }
 
-  if (!stateCopy.length > 0) stateCopy.push(updateState_)
-  let newState__
+  if (!stateCopy.length > 0) stateCopy.push(updateState_);
+  let newState__;
   const exestsState = stateCopy.some((item, index) => {
-    const exsts = item.key == key
+    const exsts = item.key == key;
     if (exsts) {
-      newState__ = { index, data: { ...item, ...updateState_ } }
+      newState__ = { index, data: { ...item, ...updateState_ } };
     } else {
-      newState__ = updateState_
+      newState__ = updateState_;
     }
-    return exsts
-  })
+    return exsts;
+  });
   if (exestsState) {
-    stateCopy[newState__.index] = newState__.data
-  } else stateCopy.push(newState__)
-  return stateCopy
+    stateCopy[newState__.index] = newState__.data;
+  } else stateCopy.push(newState__);
+  return stateCopy;
 }
 
 /**
@@ -178,14 +236,14 @@ export function setAObject(stateCopy, updateState_) {
  * @params defaultVal String if no match found
  * */
 export function getAObject(obj = [], key = null, defaultVal = {}) {
-  let newState = defaultVal
+  let newState = defaultVal;
   if (key)
     obj.forEach((item) => {
       if (item.key == key) {
-        return (newState = item.value)
+        return (newState = item.value);
       }
-    })
-  return newState
+    });
+  return newState;
 }
 
 // export function numberComma(numc) {
@@ -240,45 +298,79 @@ export function getAObject(obj = [], key = null, defaultVal = {}) {
 //     return total;
 // }
 
-function appendAt(arrayVal = [], at = [], insertval = ',') {
+function appendAt(arrayVal = [], at = [], insertval = ",") {
   let val = [],
-    _at = []
+    _at = [];
 
-  if (!EmjsF(arrayVal).isArray()) throw new Error("array value expected for 'arrayVal'")
+  if (!EmjsF(arrayVal).isArray()) throw new Error("array value expected for 'arrayVal'");
 
   if (!EmjsF(at).isArray()) {
-    _at.push(at)
-  } else _at = at
+    _at.push(at);
+  } else _at = at;
 
   arrayVal.forEach((v, i) => {
     let isvat = _at.some((vat) => {
-      return i == vat
-    })
-    val = val.concat(isvat ? [insertval, v] : v)
-  })
+      return i == vat;
+    });
+    val = val.concat(isvat ? [insertval, v] : v);
+  });
 
-  return val
+  return val;
 }
 
 export function numberComma(num) {
   let total,
     val = [],
-    numstr = String(num).split('.'),
+    numstr = String(num).split("."),
     numpop = numstr.pop(),
     numval = Number(numstr[0] || num),
-    numarray = numval.toString().split('').reverse()
+    numarray = numval.toString().split("").reverse();
 
   if (numval > 999999999999) {
-    val = val = appendAt(numarray, [3, 6, 9, 12])
+    val = val = appendAt(numarray, [3, 6, 9, 12]);
   } else if (numval > 999999999) {
-    val = val = appendAt(numarray, [3, 6, 9])
+    val = val = appendAt(numarray, [3, 6, 9]);
   } else if (numval > 999999) {
-    val = val = appendAt(numarray, [3, 6])
+    val = val = appendAt(numarray, [3, 6]);
   } else if (numval > 999) {
-    val = appendAt(numarray, 3)
-  } else val = numarray
+    val = appendAt(numarray, 3);
+  } else val = numarray;
 
-  total = val.reverse().join('') + (numpop == '' || numpop == null ? '.' + numpop : '')
+  total = val.reverse().join("") + (numpop == "" || numpop == null ? "." + numpop : "");
 
-  return total
+  return total;
 }
+
+export function setImageIfError(url_path, onerror = () => {}, onload = (path) => {}) {
+  const img = new Image();
+  img.src = url_path;
+  img.onerror = () => {
+    onerror();
+  };
+  img.onload = () => {
+    onload(url_path);
+  };
+}
+/***
+ * This function is used to merge array of same objects together.
+ * @param array1 Array
+ * @param array2 Array
+ * @param keys Array ["key1","key2"] - default is "id"
+ * @returns Array
+ * */
+export function mergeArrayObjects(array1 = [], array2 = [], keys = ["id", "id"]) {
+  if (!EmjsF(keys).isArray()) keys = [keys];
+  const key1 = jsonValue(keys, "id").get(0);
+  const key2 = jsonValue(keys, key1).get(1);
+
+  const map = new Map();
+
+  array1.forEach((item) => map.set(item[key1], item));
+  array2.forEach((item) => map.set(item[key2], { ...map.get(item[key2]), ...item }));
+
+  const mergedArr = Array.from(map.values());
+  return mergedArr;
+  // console.log(JSON.stringify(mergedArr));
+}
+
+export const arrayObjectMerge = mergeArrayObjects;

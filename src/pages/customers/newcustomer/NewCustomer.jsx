@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./newcustomer.scss";
 import { Col, Row } from "react-bootstrap";
@@ -10,30 +10,58 @@ import CountryList from "../../../components/CountriesDropdown";
 import PicturesWall from "../../../components/upload";
 import { useState } from "react";
 import { getCountryName } from "../../../utils/getCities";
+import { jsonValue } from "../../../applocal";
+import LoadingAnim from "../../../components/LoadingAnim";
 const { Dragger } = Upload;
 
 const NewCustomer = ({ history, location }) => {
   const params = qs.parse(location.search, { ignoreQueryPrefix: true });
   const [attachments, setImages] = useState([]);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [initVals, setinitVals] = useState({});
+  const form = Form.useForm();
 
-  let initVals = params && params.data && JSON.parse(params.data);
+  // const initVals = params && params.data && jsonValue(params.data).parse();
+  const { data: paramData } = params;
+
+  function getUser() {
+    setFetching(true);
+    Customer.getSingle(paramData)
+      .then(({ data: { data } }) => {
+        setinitVals(data);
+        // console.log(data);
+        // form.setFormFields(data)
+      })
+      .finally(() => setFetching(false));
+  }
 
   const addNew = (customer) => {
-    setLoading(true)
+    setLoading(true);
+
     customer.country = getCountryName(customer.country);
-    if (initVals) {
-      Customer.update(initVals._id, { ...customer, attachments }).then(() => {
-        toast.success("Successfully Updated");
-        history.push("/customers");
-      }).finally(() => setLoading(false));
+
+    if (initVals?._id) {
+      Customer.update(initVals._id, { ...customer, files: attachments })
+        .then(() => {
+          toast.success("Successfully Updated");
+          history.push("/customers");
+        })
+        .finally(() => setLoading(false));
     } else {
-      Customer.add({ ...customer, attachments }).then(() => {
-        toast.success("Successfully Add New Customer");
-        history.push("/customers");
-      }).finally(() => setLoading(false));
+      Customer.add({ ...customer, files: attachments })
+        .then(() => {
+          toast.success("Successfully Add New Customer");
+          history.push("/customers");
+        })
+        .finally(() => setLoading(false));
     }
   };
+  useEffect(() => {
+    if (paramData) getUser();
+  }, []);
+
+  if (fetching) return <LoadingAnim />;
 
   return (
     <>
@@ -44,9 +72,10 @@ const NewCustomer = ({ history, location }) => {
           </h5>
           <Form
             name="wrap"
-            labelCol={{ flex: '130px' }}
+            labelCol={{ flex: "130px" }}
             labelAlign="left"
             labelWrap
+            //
             wrapperCol={{ flex: 1 }}
             colon={false}
             layout="horizontal"
@@ -59,28 +88,57 @@ const NewCustomer = ({ history, location }) => {
             <Form.Item label="phone" name="phone" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
+
+            {/* {!paramData && (
+              <> */}
             <Form.Item label="Email" name="email" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
-            <CountryList />
-            <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+            <Form.Item label="Password" name="password" rules={[{ required: true }]}>
+              <Input hasFeedback type="password" placeholder="Password(6 digits at least, case sensitive)" className="w-100 .rad_10" />
+            </Form.Item>
+            <Form.Item
+              label="Confirm Password "
+              name="confirm_password"
+              dependencies={["password"]}
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Please confirm your password!",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("The two passwords that you entered do not match!"));
+                  },
+                }),
+              ]}
+            >
+              <Input type="password" placeholder="Comfirm password" className="w-100 .rad_10" />
+            </Form.Item>
+            {/* </>
+            )} */}
+            <CountryList isCountryRequired={true} isRequired={false} />
+            <Form.Item label="Address" name="address" rules={[{ required: false }]}>
               <Input />
             </Form.Item>
-            <Form.Item label="Address 2" name="address2" rules={[{ required: true }]}>
+            {/* <Form.Item label="Address 2" name="address2" rules={[{ required: false }]}>
               <Input />
-            </Form.Item>
-            <Form.Item label="Private Note" name="privateNotes" rules={[{ required: true }]}>
+            </Form.Item> */}
+            <Form.Item label="Private Note" name="notes" rules={[{ required: false }]}>
               <Input.TextArea />
             </Form.Item>
             <Form.Item>
               <Button loading={loading} id="mybtnupdate" className="col-2 offset-sm-4" htmlType="submit">
-                {initVals ? "Update" : "Add New"}
+                {initVals?._id ? "Update" : "Add New"}
               </Button>
             </Form.Item>
           </Form>
-
         </div>
-        <div className="col-md-7 ">
+        {/* <div className="col-md-7 ">
           <h5 className="offset-sm-1 mb-3">
             <b>Courses</b>
           </h5>
@@ -168,7 +226,7 @@ const NewCustomer = ({ history, location }) => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

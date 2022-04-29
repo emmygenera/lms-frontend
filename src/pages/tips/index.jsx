@@ -1,35 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import "./tipindex.scss";
-import Card from "./Card.jsx";
-import { AppTopbar } from "../../AppTopbar";
+import Card from "./Card";
 import { Row, Col } from "react-bootstrap";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import TIpService from "../../services/TipService";
+import qs from "query-string";
 import { Spin } from "antd";
-const Tips = () => {
+import { pmac } from "../../routing/indexRoutes";
+import { useSelector } from "react-redux";
+import ViewTips from "./ViewTips";
+
+//
+
+const Tips = ({ location, history }) => {
+  const params = qs.parse(location.search, { ignoreQueryPrefix: true });
   const [tips, setTips] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [viewTip, setviewTip] = useState({});
+  const [page, setPage] = useState(params.pageNo || 1);
+  const [pageSize, setPageSize] = useState(params.pageSize || 5);
+  const [search, setSearch] = useState(params.search || "");
+  const [pageData, setPageData] = useState({ currentPage: 0, nextPage: params.pageNo || 1, previousPage: 0, total: 0, offsetBy: params.pageSize || 15, totalPages: 0 });
+  const { userRl } = useSelector((s) => s.auth);
+  const mgn = pmac(["admin", "manager", "marketing"]).includes(userRl);
   useEffect(() => {
     getTips();
-  }, [])
+  }, []);
   const getTips = () => {
-    setTips([]);
-    TIpService.getAll().then(({ data: { tips } }) => {
-      setTips(tips);
+    // setTips([]);
 
-    }).catch((err) => {
-    }).finally(() => setLoading(false))
+    history.push(`?pageNo=${pageData.nextPage}&pageSize=${pageData.offsetBy}&search=${search}`);
+
+    TIpService.getPaginated({ page: pageData.nextPage, pageSize: pageData.offsetBy, query: search })
+      .then(({ data: { nextPage = 0, offsetBy = 0, previousPage = 0, totalPages = 0, total = 0, data: tips } }) => {
+        setTips(tips);
+        setPageData((state) => ({ ...state, previousPage, nextPage, total, offsetBy: Number(offsetBy), totalPages: Number(totalPages) }));
+      })
+      .catch((err) => {})
+      .finally(() => setLoading(false));
+  };
+
+  const delTip = (id) =>
+    new Promise((resolve, reject) => {
+      TIpService.deletetip(id)
+        .then((result) => {})
+        .catch((err) => {});
+      setTimeout(() => {
+        resolve(setTips([...tips.filter(({ _id }) => _id !== id)]));
+      }, 200);
+    });
+
+  const isLoadmore = pageData.totalPages >= pageData.nextPage;
+  const loadMore = getTips;
+  function onViewTip(data) {
+    setviewTip(data);
   }
-
-  const delTip = (id) => new Promise((resolve, reject) => {
-    TIpService.deletetip(id).then((result) => { }).catch((err) => { });
-    setTimeout(() => {
-      resolve(setTips([...tips.filter(({ _id }) => _id !== id)]));
-    }, 200);
-  })
+  const modalRef = useRef(null);
+  const onModalClose = (e) => {
+    if (modalRef.current == e.target) {
+      const frame = modalRef.current.querySelector("iframe");
+      // console.log(frame.src);
+      if (frame) frame.src = frame.src;
+    }
+  };
 
   return (
     <>
@@ -48,6 +82,7 @@ const Tips = () => {
                   Tips<span style={{ marginLeft: "10px" }}>/</span>
                 </Link>
               </li>
+
               <li class="nav-item">
                 <Link class="nav-link" to="login">
                   View Tips
@@ -68,31 +103,68 @@ const Tips = () => {
             </button>
           </div>
         </Col>
-
-        <Col xs={3} className="offset-4">
-          <Row>
-            <Col xs={2}></Col>
-            <Col xs={10}>
-              <Link className="" to="newCourse">
-                <p className="addmycourse " style={{ backgroundColor: "#F1F1F1" }}>
-                  +Add New Tip
-                </p>
-              </Link>
-            </Col>
-          </Row>
-        </Col>
+        {mgn && (
+          <Col xs={3} className="offset-4">
+            <Row>
+              <Col xs={2}></Col>
+              <Col xs={10}>
+                <Link className="" to="newTip">
+                  <p className="addmycourse" style={{ backgroundColor: "#F1F1F1" }}>
+                    +Add New Tip
+                  </p>
+                </Link>
+              </Col>
+            </Row>
+          </Col>
+        )}
       </Row>
 
       <div className="row mt-5" style={{ backgroundColor: "white" }}>
-        {loading ? <Spin /> : <>{tips.map((tip) => (<Card tip={tip} delTip={delTip} />))}</>}
-        {/* {!loading && tips.length ===0 && } */}
-        {/* <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card /> */}
+        {tips.map((tip) => (
+          <Card tip={tip} delTip={delTip} onViewTip={onViewTip} isManagement={mgn} />
+        ))}
+        <div className="col-12">
+          <div className="d-flex justify-content-center" style={{ padding: 10 }}>
+            {loading && <Spin />}
+            {isLoadmore && !loading && (
+              <span className="text-center d-block">
+                <button onClick={loadMore} className="btn shadow p-3" style={{ borderRadius: 300, fontSize: 16 }}>
+                  &darr;
+                  <i className="fa fa-bi-arrow-bar-down"></i>
+                </button>
+                <span className="d-block text-capitalize">View More</span>
+              </span>
+            )}
+          </div>
+
+          <div className="modal fade" ref={modalRef} onClick={onModalClose} id="tipModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal-dialog" role="document" style={{ maxWidth: 700 }}>
+              <div className="modal-content rad_4 overflow-hidden">
+                {/* <div className="modal-header" hidden>
+              <h5 className="modal-title" id="exampleModalLabel">
+                Modal title
+              </h5>
+              <button type="button" className="btn close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div> */}
+                <div className="modal-body p-0">
+                  {/* <SeventhPage /> */}
+                  {/* <LivePage /> */}
+                  {viewTip?._id && <ViewTips data={viewTip} />}
+                </div>
+                {/* <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-dismiss="modal">
+                Close
+              </button>
+              <button type="button" className="btn btn-primary">
+                Save changes
+              </button>
+            </div> */}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

@@ -5,7 +5,7 @@ import CustomerIn from "./customerIn";
 import UserCourses from "./courses/user";
 import FifthPage from "./courses/user/PageFive";
 import SixthPage from "./courses/user/page6";
-import SeventhPage from "./courses/user/page7";
+import ViewCourse from "./courses/user/ViewCourse";
 import Orders from "./orders";
 import NewOrder from "./orders/NewOrder";
 import UpdateOrder from "./orders/UpdateOrder";
@@ -36,8 +36,8 @@ import Questions from "./questions";
 import Leads from "./leads";
 import NewLead from "./leads/page37/NewLead";
 
-import Markeeting from "./markeeting";
-import NewCompaign from "./markeeting/newcompaign/NewCompaign";
+import Markeeting from "./markeeting/index";
+import NewCompaign from "./markeeting/newcompaign/NewCampaign";
 
 import Tips from "./tips";
 import NewTip from "./tips/newtip/NewTip";
@@ -47,11 +47,13 @@ import Question from "./question";
 
 import { EmptyPage } from "./EmptyPage";
 import TestComponent from "./testcomponent";
+import Dashboard from "./dashboard";
 import Nav from "./whitenav";
 
 export {
   Customer,
   NewCustomer,
+  Dashboard,
   // UpdateCustomer,
   Markeeting,
   Tips,
@@ -72,7 +74,7 @@ export {
   NewLesson,
   FifthPage,
   SixthPage,
-  SeventhPage,
+  ViewCourse,
   NewOrder,
   UpdateOrder,
   EmptyPage,

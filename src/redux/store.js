@@ -11,12 +11,9 @@ const Store = () => {
     key: "root",
     storage: storage,
     reconciliation: autoMergeLevel2,
-    whitelist: ["auth", "menu"],
+    whitelist: ["auth", "menu", "globals"],
   };
-  const pertReducer = persistReducer(
-    persistConfig,
-    combineReducers({ auth: Auth, menu: Menu, globals, general: General })
-  );
+  const pertReducer = persistReducer(persistConfig, combineReducers({ auth: Auth, menu: Menu, globals, general: General }));
   const middleWare = applyMiddleware(thunk);
   return createStore(pertReducer, middleWare);
 };

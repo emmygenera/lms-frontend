@@ -1,8 +1,9 @@
 @media screen and(max-width:991px) {
-    .navspan{
-        display: none;
-        
-        
-    }
-    
+  .navspan {
+    display: none;
+  }
+}
+.img {
+  object-fit: cover;
+  object-position: center;
 }

@@ -1,0 +1,31 @@
+{
+    "card_name": "name on card",
+    "card_number": "",
+    "card_cvc": "",
+    "card_date": "",
+    "country": "",
+    "postal_code": "",
+    "user_id": "sdsddfdsfdsfse423r23r323",
+    "courses": [
+        {
+            "courseId": "course_id_1_cwec343f34f3f34f3f3f",
+            "coursePackage": {
+                "duration": "one_month",
+                "price": {
+                    "usd": "10",
+                    "jod": "100"
+                }
+            }
+        },
+        {
+            "courseId": "course_id_2_cwec343f34f3f34f3f3f",
+            "coursePackage": {
+                "duration": "one_month",
+                "price": {
+                    "usd": "10",
+                    "jod": "100"
+                }
+            }
+        }
+    ]
+}

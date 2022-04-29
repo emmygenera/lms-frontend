@@ -1,37 +1,146 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./orders.scss";
 import { Row, Col } from "react-bootstrap";
-import { Form, Input, Select, DatePicker, Button } from 'antd';
+import { Form, Input, Select, DatePicker, Button } from "antd";
 import CountryList from "../../components/CountriesDropdown";
-import { useSelector } from "react-redux";
-import OrderService from '../../services/orders';
+import { useDispatch, useSelector } from "react-redux";
+import OrderService from "../../services/orders";
+import { DateTime, EmjsF, jsonValue, objectOnly, objectRemove, Post, RandomString, toCapitalize } from "../../applocal";
+import LoadingAnim from "../../components/LoadingAnim";
+import Courses from "../../services/courses";
+import { setCustomer } from "../../redux/actions/auth";
+import { totalCoursePackage } from "../website/customer/CheckOut";
+import APP_USER from "../../services/APP_USER";
+import { toast } from "react-toastify";
+import onFindCourses from "./components/onFindCourses";
 
 const NewOrder = ({ history }) => {
   // const [data, setData] = useState({});
-  const { courses } = useSelector(state => state.general);
+  // const { courses } = useSelector((state) => state.general);
+  const [courses, setCourses] = useState([]);
+  const [OrderedCourse, setOrderedCourse] = useState({});
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [totalTier, setTotalTier] = useState(0);
+  const [subTier, setSubTier] = useState(0);
+  const [SubscriptionTier, setSubscriptionTier] = useState([]);
+  const [userRes, setuserRes] = useState(false);
+  const [accountName, setAccountName] = useState("");
+  const [userResDone, setuserResDone] = useState(false);
+  const [Res, setRes] = useState("");
 
-  // const _handleChange = (value) => setData(data => ({ ...data, value }));
-
-  const handleFinish = (vals) => {
-    setLoading(true)
-    vals.endDate = new Date(vals.endDate);
-    vals.startDate = new Date(vals.startDate);
-
-    OrderService.add(vals).then((result) => {
-      history.push('/orders')
-    }).catch((err) => {
-      console.log({ err })
-    }).finally(() => setLoading(false))
+  const freePackage = {
+    duration: "one_month_free",
+    // label: "30 days free",
+    price: { usd: "0", jod: "0" },
   };
 
+  const dispatch = useDispatch();
+  // const _handleChange = (value) => setData(data => ({ ...data, value }));
+  function handleUserOrderAccount(data_) {
+    setuserRes(true);
+    // setAccountName(data_.fname + " " + data_.lname);
+    const data = objectRemove(
+      {
+        ...data_,
+      },
+      ["course", "subscriptionTier"]
+    );
+    setRes("");
+    Post({ url: "users/add", data, dataType: "json" })
+      .then(({ data: { data: _data } }) => {
+        processOrder(data_, _data);
+      })
+      .catch((err) => {
+        if (err?.response?.status == 400) setRes(err?.response?.data?.message);
+        else toast.error("Oops! Error occured while creating user account... Error: " + err?.response?.statusText);
+      })
+      .finally(() => {
+        setuserRes(false);
+      });
+  }
+
+  function getCourses(loading = true) {
+    setFetching(loading);
+    Courses.getAll()
+      .then(({ data: { data } }) => {
+        setCourses(data);
+      })
+      .finally(() => setFetching(false));
+  }
+  const processOrder = (formVals, user) => {
+    setLoading(true);
+    // vals.endDate = new Date(vals.endDate);
+    // vals.startDate = new Date(vals.startDate);
+    const data = {
+      ...objectOnly(formVals, ["phone", "email", "address2", "country", "city"]),
+      customerType: APP_USER.customer,
+      name: user?.name,
+      address1: user?.address,
+      courseID: "",
+      orderID: "Order-" + RandomString(10),
+      startDate: DateTime().now(),
+      endDate: "",
+      subscriptionTier: "Manual Cash Payment",
+      total: totalTier,
+      userId: user?._id,
+      courses: [OrderedCourse],
+      // customerType: 1,
+      // total: courseTotalPrice(),
+      // courses: totalCoursePackage(cartsData),
+    };
+
+    OrderService.add(data)
+      .then((result) => {
+        history.push("/orders");
+      })
+      .catch((err) => {
+        if (err?.response?.status == 400) setRes(err?.response?.data?.message);
+        else toast.error("Oops! Error creating customer's order after account has been created... Error: " + err?.response?.statusText);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  function getSingleCourses(val) {
+    let vv = null;
+    courses.forEach((v, idx) => {
+      if (v._id == val) {
+        return (vv = v);
+      }
+    });
+    return vv;
+  }
+
+  function handleFindCourse(value) {
+    if (!value) {
+      getCourses(false);
+    }
+    onFindCourses({
+      value,
+      onLoadStart: (data) => {
+        setCourses(data);
+      },
+      onResultsData: (data) => {
+        setCourses(data);
+      },
+    });
+  }
+
+  useEffect(() => {
+    getCourses();
+  }, []);
+
+  if (fetching) {
+    return <LoadingAnim />;
+  }
+  // console.log(OrderedCourse, RandomString(10));
   return (
     <>
       <nav class="mt-5 ps-5 navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-          <Link class="navbar-brand" to="/login">
-            New Customer<span style={{ marginLeft: "10px" }}>|</span>
+          <Link class="navbar-brand" to="/newOrder">
+            New Customer Order<span style={{ marginLeft: "10px" }}>|</span>
           </Link>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -39,12 +148,12 @@ const NewOrder = ({ history }) => {
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
-                <Link class="nav-link" to="login">
-                  Existing Customer<span style={{ marginLeft: "10px" }}>|</span>
+                <Link class="nav-link" to="customerNewOrder">
+                  Existing Customer Order<span style={{ marginLeft: "10px" }}>|</span>
                 </Link>
               </li>
               <li class="nav-item">
-                <Link class="nav-link" to="login">
+                <Link class="nav-link" to="newLeadOrder">
                   Lead
                 </Link>
               </li>
@@ -56,15 +165,15 @@ const NewOrder = ({ history }) => {
         <Col sm={6}>
           <Form
             name="wrap"
-            labelCol={{ flex: '130px' }}
+            labelCol={{ flex: "130px" }}
             labelAlign="left"
             labelWrap
             wrapperCol={{ flex: 1 }}
             colon={false}
-            onFinish={handleFinish}
+            onFinish={handleUserOrderAccount}
             layout="horizontal"
-          // initialValues={data}
-          // onValuesChange={_handleChange}
+            // initialValues={data}
+            // onValuesChange={_handleChange}
           >
             <Form.Item label="Name" name="name" rules={[{ required: true }]}>
               <Input />
@@ -76,9 +185,9 @@ const NewOrder = ({ history }) => {
               <Input />
             </Form.Item>
             <CountryList />
-            {/* <Form.Item label="Password" name="password" rules={[{ required: true }]}>
+            <Form.Item label="Password" name="password" rules={[{ required: true }]}>
               <Input.Password />
-            </Form.Item> */}
+            </Form.Item>
             <Form.Item label="Address" name="address" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
@@ -86,24 +195,79 @@ const NewOrder = ({ history }) => {
               <Input />
             </Form.Item>
             <Form.Item label="Course" name="course" rules={[{ required: true }]}>
-              <Select defaultValue={"Select a course"}>
-                {courses.map(({ _id, name }) => <Select.Option value={_id}>{name}</Select.Option>)}
+              <Select
+                showSearch
+                onSearch={handleFindCourse}
+                defaultActiveFirstOption={false}
+                // showArrow={false}
+                filterOption={false}
+                notFoundContent={null}
+                defaultValue={"Select a course"}
+                onChange={(v) => {
+                  const { avl_packages, _id, ...otherProps } = getSingleCourses(v),
+                    jsonp = EmjsF(avl_packages).parse();
+                  setSubscriptionTier([freePackage].concat(jsonp));
+
+                  setOrderedCourse({ courseId: _id, course: otherProps });
+                  // const { avl_packages } = getSingleCourses(v);
+                  // let total = 0;
+                  // // console.log(jsonp);
+                  // EmjsF(jsonp).objList(({ key, value }) => {
+                  //   total += Number(value["price"].usd);
+                  // });
+                  // setTotalTier(total);
+                }}
+              >
+                {courses.map(({ _id, name, avl_packages }) => (
+                  <Select.Option data-value={avl_packages} value={_id}>
+                    {name}
+                  </Select.Option>
+                ))}
               </Select>
             </Form.Item>
+            {/*             
             <Form.Item label="Start date" name="startDate" rules={[{ required: true }]}>
-              <DatePicker size={'large'} style={{ width: "100%" }} />
+              <DatePicker size={"large"} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item label="Expire date" name="endDate" rules={[{ required: true }]}>
-              <DatePicker size={'large'} style={{ width: "100%" }} />
+              <DatePicker size={"large"} style={{ width: "100%" }} />
+            </Form.Item> */}
+
+            <Form.Item label="Subscription Tier" name="subscriptionTier" rules={[{ required: true }]}>
+              <Select
+                onChange={(v) => {
+                  const course_package = jsonValue(v).parse(),
+                    {
+                      price: { usd = 0, jod = 0 },
+                    } = course_package;
+
+                  setTotalTier(jod);
+                  setOrderedCourse((s) => ({ ...s, coursePackage: course_package }));
+                }}
+                defaultValue={"Select a Packages"}
+              >
+                {/* //[
+              //     { name: "complimentary", value: 0 },
+              //     { name: "Standard", value: 1 },
+              //     { name: "Professional", value: 2 },
+              //     // { name: "All Access", value: 50 },
+              //   ] */}
+                {SubscriptionTier.map((item, idx) => (
+                  <Select.Option key={idx} value={jsonValue(item).toStringAll()}>
+                    {toCapitalize(String(item?.label || item?.duration).replaceAll("_", " "))}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Form.Item>
               <div className="row my-4 ms-1">
                 <p className=" col-sm-2 col-md-3 text-sm-end">Total</p>
-                <p className=" col-sm-3 py-1 pricep">$0.00</p>
+                <p className=" col-sm-3 py-1 pricep">JOD {totalTier}.00</p>
               </div>
             </Form.Item>
+            {Res && <div className="alert alert-danger">{Res}</div>}
             <Form.Item>
-              <Button className="col-2 offset-sm-3" id="mybtnupdate" htmlType="submit" loading={loading}>
+              <Button className="col-2 offset-sm-3" id="mybtnupdate" htmlType="submit" loading={userRes || loading}>
                 Add
               </Button>
             </Form.Item>
@@ -142,7 +306,6 @@ const NewOrder = ({ history }) => {
 };
 
 export default NewOrder;
-
 
 /**
  * import React from "react";

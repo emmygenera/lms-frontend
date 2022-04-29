@@ -1,0 +1,47 @@
+{
+    "packages": [
+        {
+            "key": "one_month",
+            "value": "1 Month"
+        },
+        {
+            "key": "two_month",
+            "value": "2 Months"
+        },
+        {
+            "key": "three_month",
+            "value": "3 Months"
+        },
+        {
+            "key": "six_month",
+            "value": "6 Months"
+        },
+        {
+            "key": "one_year",
+            "value": "1 Year"
+        },
+        {
+            "key": "two_year",
+            "value": "2 Years"
+        }
+    ],
+    "packageSrtingValue": {
+        "": "",
+        "one_month": "1 Month",
+        "one_month_free": "1 Month Free",
+        "two_month": "2 Months",
+        "three_month": "3 Months",
+        "six_month": "6 Months",
+        "one_year": "1 Year",
+        "two_year": "2 Years"
+    },
+    "packagesValue": {
+        "one_month": 1,
+        "one_month_free": 1,
+        "two_month": 2,
+        "three_month": 3,
+        "six_month": 6,
+        "one_year": 12,
+        "two_year": 24
+    }
+}

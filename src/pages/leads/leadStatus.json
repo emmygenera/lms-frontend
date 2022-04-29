@@ -1,0 +1,22 @@
+[
+    {
+        "value": "new",
+        "text": "New"
+    },
+    {
+        "value": "contacted",
+        "text": "Contacted"
+    },
+    {
+        "value": "interested",
+        "text": "Interested"
+    },
+    {
+        "value": "notinterested",
+        "text": "Not Interested"
+    },
+    {
+        "value": "readytobuy",
+        "text": "Ready To Buy"
+    }
+]

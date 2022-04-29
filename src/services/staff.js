@@ -1,11 +1,13 @@
 import http from "./http";
+import { Post } from "../applocal";
 
 const Staff = {
-    add: async (payload) => await http.post("/staff/create", payload),
-    getAll: async () => await http.get("/staff/all"),
-    getPaginated: async (page, pageSize, query) => await http.get(`/staff/all/paginated?page=${page}&pageSize=${pageSize}&query=${query}`),
-    deleteStaff: async (id) => await http.delete(`/staff/${id}`),
-    updateOne: async (staff) => await http.put(`/staff/${staff.id}`, staff),
+  add: (payload) => Post({ url: "/staff/add", data: payload }),
+  getAll: async () => await http.get("/staff/all"),
+  getOne: (id) => http.get("/staff/single/" + id),
+  getPaginated: async (page, pageSize, query) => await http.get(`/staff/all?pageNo=${page}&pageSize=${pageSize}&query=${query}`),
+  deleteStaff: async (id) => await http.delete(`/staff/delete/${id}`),
+  updateOne: (staff) => Post({ url: `/staff/update/${staff.id}`, data: staff, method: "patch" }),
 };
 
 export default Staff;

@@ -1,0 +1,5 @@
+import { useState } from "react";
+
+
+
+declare export default function filterState<useState>(states = {}) :useState;
