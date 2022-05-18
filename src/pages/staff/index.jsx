@@ -17,6 +17,7 @@ import stafs from "../../services/staff";
 import PaginatedTable from "../../components/PaginatedTable";
 import { DateTime, nullNumber } from "../../applocal";
 import filterState from "../components/filterState";
+import confirmDelete from "../functions/comfirmDelete";
 
 const Staff = (props) => {
   const params = qs.parse(props.location.search, { ignoreQueryPrefix: true });
@@ -33,12 +34,14 @@ const Staff = (props) => {
   const [search, setSearch] = useState(params.query || "");
 
   const deleteStaff = async (id) => {
-    setDate((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
-    return await stafs.deleteStaff(id);
+    if (confirmDelete()) {
+      setDate((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+      return await stafs.deleteStaff(id);
+    }
   };
 
   const updateStaff = (staff) => props.history.push(`/newStaff?data=${staff}`);
@@ -79,10 +82,12 @@ const Staff = (props) => {
       .finally(() => setLoading(false));
   };
   const deleteAll = async () => {
-    Promise.all(selectedRowKeys.map((_id) => stafs.deleteStaff(_id))).then(() => {
-      toast.success("Successfully deleted");
-      setSelectedRowKeys([]);
-    });
+    if (confirmDelete()) {
+      Promise.all(selectedRowKeys.map((_id) => stafs.deleteStaff(_id))).then(() => {
+        toast.success("Successfully deleted");
+        setSelectedRowKeys([]);
+      });
+    }
   };
   const columns = [
     {

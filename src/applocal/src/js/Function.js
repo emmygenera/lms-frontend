@@ -373,4 +373,10 @@ export function mergeArrayObjects(array1 = [], array2 = [], keys = ["id", "id"])
   // console.log(JSON.stringify(mergedArr));
 }
 
+export function objectJoin(object = {}, replace = ",") {
+  return EmjsF(object)
+    .toString()
+    .replace(/[,\"\'}{]/gi, ($) => ($ == "," ? replace : ""));
+}
+
 export const arrayObjectMerge = mergeArrayObjects;

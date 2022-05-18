@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import { pmac } from "../../routing/indexRoutes";
 import APP_USER from "../../services/APP_USER";
 import PaginatedTable from "../../components/PaginatedTable";
+import confirmDelete from "../functions/comfirmDelete";
 
 // const data = [
 //   {
@@ -99,13 +100,15 @@ const Message = (props) => {
   ];
 
   const deleteTicket = async (id) => {
-    return await Ticket.delete(id).then(() => {
-      toast.success("Successfully deleted");
-      setData((_data) => {
-        const newData = [..._data.filter(({ _id }) => _id !== id)];
-        return newData;
+    if (confirmDelete()) {
+      return await Ticket.delete(id).then(() => {
+        toast.success("Successfully deleted");
+        setData((_data) => {
+          const newData = [..._data.filter(({ _id }) => _id !== id)];
+          return newData;
+        });
       });
-    });
+    }
   };
 
   //const updateStaff = (staff) => props.history.push(`/newStaff?data=${staff}`);
@@ -173,12 +176,14 @@ const Message = (props) => {
   }, []);
 
   const deleteAll = () => {
-    toast.info("Deleting...");
-    Promise.all(selectedRowKeys.map((id) => Ticket.delete(id))).then(() => {
-      setData((_data) => [..._data.filter(({ _id }) => !selectedRowKeys.some((id) => _id == id))]);
-      setSelectedRowKeys([]);
-      toast.success("Successfully deleted...");
-    });
+    if (confirmDelete()) {
+      toast.info("Deleting...");
+      Promise.all(selectedRowKeys.map((id) => Ticket.delete(id))).then(() => {
+        setData((_data) => [..._data.filter(({ _id }) => !selectedRowKeys.some((id) => _id == id))]);
+        setSelectedRowKeys([]);
+        toast.success("Successfully deleted...");
+      });
+    }
   };
   return (
     <>

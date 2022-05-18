@@ -18,6 +18,7 @@ import APP_USER from "../../services/APP_USER";
 import InvoicePrint from "./newinvoice/InvoicePrint";
 import { arrayObjectMerge, baseUrl, DateTime, jsonValue, nullNumber, objectRemove } from "../../applocal";
 import orderService from "../../services/orders";
+import confirmDelete from "../functions/comfirmDelete";
 
 // const data = [
 //     {
@@ -125,13 +126,15 @@ const Invoice = (props) => {
       });
   };
   const deleteCat = async (id) => {
-    toast.info("deleting...");
-    await orderService.deleteorder(id).catch(() => toast.error("Invoice not deleted"));
-    setDate((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
+    if (confirmDelete()) {
+      toast.info("deleting...");
+      await orderService.deleteorder(id).catch(() => toast.error("Invoice not deleted"));
+      setDate((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+    }
   };
 
   const updateCat = (data) => props.history.push(`/newInvoice?data=${data._id}`);
@@ -165,23 +168,25 @@ const Invoice = (props) => {
   const actions = (lead) => <Actions component={lead} showDel={mgn} showUpd={false} deleteFun={deleteCat} onView={viewInvoice} updateFun={updateCat} />;
 
   const deleteAll = () => {
-    setLoading(true);
-    toast.info("deleting...");
-    return new Promise((resolve, reject) =>
-      Promise.all(selectedRowKeys.map(async (id) => await orderService.deleteorder(id)))
-        .then(() => {
-          getData();
-          resolve("");
-          setDate((_data) => {
-            const newData = [..._data.filter(({ _id }) => !selectedRowKeys.some((itm) => _id == itm?._id))];
-            return newData;
-          });
-          setSelectedRowKeys([]);
-          toast.success("Successfully deleted");
-        })
-        .catch((e) => reject(e))
-        .catch(() => toast.error("Invoice not deleted"))
-    );
+    if (confirmDelete()) {
+      setLoading(true);
+      toast.info("deleting...");
+      return new Promise((resolve, reject) =>
+        Promise.all(selectedRowKeys.map(async (id) => await orderService.deleteorder(id)))
+          .then(() => {
+            getData();
+            resolve("");
+            setDate((_data) => {
+              const newData = [..._data.filter(({ _id }) => !selectedRowKeys.some((itm) => _id == itm?._id))];
+              return newData;
+            });
+            setSelectedRowKeys([]);
+            toast.success("Successfully deleted");
+          })
+          .catch((e) => reject(e))
+          .catch(() => toast.error("Invoice not deleted"))
+      );
+    }
   };
   const updateAll = () => {
     setLoading(true);

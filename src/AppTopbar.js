@@ -20,7 +20,7 @@ export const AppTopbar = (props) => {
   const { heading } = useSelector((state) => state.menu);
   const { user, userRl } = useSelector((state) => state.auth);
   const isPerm = pmac([APP_USER.customer]).includes(userRl);
-  const { carts } = useSelector((s) => s.globals);
+  const { carts, addons_purchase } = useSelector((s) => s.globals);
 
   const { notifications: NotifcationData } = useSelector((s) => s.general);
 
@@ -35,7 +35,12 @@ export const AppTopbar = (props) => {
 
   const dispatch = useDispatch();
 
-  const len = object_entries(carts).length > 0;
+  const cartsData = object_entries(carts);
+  const addonsData = object_entries(addons_purchase);
+
+  const orderLen = cartsData.length > 0;
+  const addonsLen = addonsData.length > 0;
+  const len = orderLen || addonsLen;
 
   function getCoures() {
     setLoading(true);
@@ -241,17 +246,17 @@ export const AppTopbar = (props) => {
                   <div className="p-3">
                     {!Loading ? (
                       data?.map(({ courses, startDate, ...order }) => {
-                        return courses?.map(({ course, ..._o }) => {
+                        return courses?.map(({ courseId, course, ..._o }) => {
                           const months = packagesValue[_o?.coursePackage?.duration],
                             inTime = DateTime(startDate).addMonths(months),
                             expireIn = DateTime(inTime).daysToGo(),
                             expireInString = expireIn == -1 ? "Expired" : expireIn + " Day" + (expireIn > 1 ? "s" : "") + " Remaining";
 
                           return (
-                            <p className="p-2">
+                            <Link to={"viewCourse?data=" + courseId} className="p-2 text-dark">
                               {course.name}
                               <p className="text-warning">{expireInString}</p>
-                            </p>
+                            </Link>
                           );
                         });
                       }) || "No Subscription"

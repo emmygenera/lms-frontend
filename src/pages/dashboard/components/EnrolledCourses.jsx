@@ -61,6 +61,7 @@ export default function EnrolledCourses({ title = "Enrolled Courses", data: Cour
             progress={lessonProg}
             dayInt={day}
             dayString={wday}
+            link={"viewCourse?data=" + item[0]?.courseId}
             //
           />
         )
@@ -89,7 +90,7 @@ export default function EnrolledCourses({ title = "Enrolled Courses", data: Cour
               <p className="text-muted">{CourseLessons.length - 3} More courses</p>
             </div>
             <div className="col-6">
-              <Link to={"/myCourses"} className="d-flex align-items-center p-1">
+              <Link to={"/myCourses"} className="d-flex align-items-center p-1  text-dark.">
                 <span className="pr-1 text-dark">View more</span>
                 <svg width="15" height="12" viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -106,33 +107,35 @@ export default function EnrolledCourses({ title = "Enrolled Courses", data: Cour
   );
 }
 
-function EnrolledCourseProgress({ lessonCompleted = 0, title, lessonTotal = 0, progress = 0, dayString, dayInt, status = true }) {
+function EnrolledCourseProgress({ link, lessonCompleted = 0, title, lessonTotal = 0, progress = 0, dayString, dayInt, status = true }) {
   const color = status ? "#21b830" : "#000";
   const color2 = status ? "#21b830" : "#fff";
   return (
-    <div className="d-flex align-items-center py-3">
-      <div className="">
-        <div className="avatar d-flex justify-content-center align-items-center flex-column p-relative text-center  .p-3" style={{ width: 70, height: 75, backgroundColor: status ? "white" : "#ebedff", border: "1px solid " + color2, borderRadius: 20 }}>
-          <span className="d-block fz-3 fw-bold">{dayInt}</span>
-          <span className="d-block fz-1">{dayString}</span>
-          <span className="p-absolute d-inline-block p-bottom-0 m-auto" style={{ bottom: -8, border: "1px solid #fff", left: "auto", right: "35%", backgroundColor: color, padding: 8, borderRadius: 300 }} />
-        </div>
-      </div>
-      <div className="details pl-2">
-        <h3 className="fz-xm fw-bold m-0 p-0">{title}</h3>
-        <div className="d-flex m-0 p-0 fz-xm">
-          <div className="col-6  p-0">
-            {progress}% {status ? "complete" : "On-going"}
-          </div>
-          <div className="col-6 text-right p-0">
-            {lessonCompleted}/{lessonTotal}
+    <Link to={link} className=" text-dark">
+      <div className="d-flex align-items-center py-3">
+        <div className="">
+          <div className="avatar d-flex justify-content-center align-items-center flex-column p-relative text-center  .p-3" style={{ width: 70, height: 75, backgroundColor: status ? "white" : "#ebedff", border: "1px solid " + color2, borderRadius: 20 }}>
+            <span className="d-block fz-3 fw-bold">{dayInt}</span>
+            <span className="d-block fz-1">{dayString}</span>
+            <span className="p-absolute d-inline-block p-bottom-0 m-auto" style={{ bottom: -8, border: "1px solid #fff", left: "auto", right: "35%", backgroundColor: color, padding: 8, borderRadius: 300 }} />
           </div>
         </div>
-        <svg width="100%" height="4" viewBox="0 0 214 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="214" height="4" rx="2" fill="#DDDDDD" />
-          <rect width={progress + "%"} height="4" rx="2" fill={status ? "#21b830" : "#FF7A00"} />
-        </svg>
+        <div className="details pl-2">
+          <h3 className="fz-xm fw-bold m-0 p-0">{title}</h3>
+          <div className="d-flex m-0 p-0 fz-xm">
+            <div className="col-6  p-0">
+              {progress}% {status ? "complete" : "On-going"}
+            </div>
+            <div className="col-6 text-right p-0">
+              {lessonCompleted}/{lessonTotal}
+            </div>
+          </div>
+          <svg width="100%" height="4" viewBox="0 0 214 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="214" height="4" rx="2" fill="#DDDDDD" />
+            <rect width={progress + "%"} height="4" rx="2" fill={status ? "#21b830" : "#FF7A00"} />
+          </svg>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

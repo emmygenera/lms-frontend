@@ -10,6 +10,7 @@ import { Spin } from "antd";
 import { pmac } from "../../routing/indexRoutes";
 import { useSelector } from "react-redux";
 import ViewTips from "./ViewTips";
+import confirmDelete from "../functions/comfirmDelete";
 
 //
 
@@ -41,15 +42,18 @@ const Tips = ({ location, history }) => {
       .finally(() => setLoading(false));
   };
 
-  const delTip = (id) =>
-    new Promise((resolve, reject) => {
-      TIpService.deletetip(id)
-        .then((result) => {})
-        .catch((err) => {});
-      setTimeout(() => {
-        resolve(setTips([...tips.filter(({ _id }) => _id !== id)]));
-      }, 200);
-    });
+  const delTip = (id) => {
+    if (confirmDelete()) {
+      new Promise((resolve, reject) => {
+        TIpService.deletetip(id)
+          .then((result) => {})
+          .catch((err) => {});
+        setTimeout(() => {
+          resolve(setTips([...tips.filter(({ _id }) => _id !== id)]));
+        }, 200);
+      });
+    }
+  };
 
   const isLoadmore = pageData.totalPages >= pageData.nextPage;
   const loadMore = getTips;

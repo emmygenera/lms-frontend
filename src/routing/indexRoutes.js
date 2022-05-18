@@ -64,6 +64,9 @@ import ImportLeads from "../pages/leads/page37/ImportLead";
 import UpdateStaffAccount from "../pages/staff/addstaff/UpdateStaffAccount";
 import ExistingCustomerNewOrder from "../pages/orders/ExistingCustomerNewOrder";
 import NewLeadOrder from "../pages/orders/newLeadOrder";
+import Addons from "../pages/courses/admin/addons";
+import NewAddon from "../pages/courses/admin/addons/NewAddon";
+import AddonPurchases from "../pages/courses/admin/addons/AddonPurchases";
 
 const roles = ["admin", "staff", APP_USER.customer, APP_USER.instructor, "user", "manager", "finance", "support", "marketing"];
 function addPermitionAccess(data = roles) {
@@ -103,6 +106,11 @@ export const IndexRoutes = [
   { path: "updateOrder", perm: pmac(["admin", "staff", "manager"]), component: UpdateOrder },
   { path: "categories", perm: pmac(["admin", "manager"]), component: Categories },
   { path: "newCategory", perm: pmac(["admin", "manager"]), component: NewCategory },
+
+  { path: "newAddon", perm: pmac(["admin", "manager"]), component: NewAddon },
+  { path: "addons", perm: pmac(["admin", "manager"]), component: Addons },
+  { path: "addonPurchases", perm: pmac(["admin", "manager"]), component: AddonPurchases },
+
   { path: "lessons", perm: pmac(["admin", "manager"]), component: Lessons },
   { path: "newLesson", perm: pmac(["admin", "manager", APP_USER.instructor]), component: NewLesson },
 
@@ -153,8 +161,8 @@ export const IndexRoutes = [
   { path: "question", perm: pmac(["admin", "manager", APP_USER.instructor]), component: Question },
   { path: "report", perm: pmac(["admin", "manager"]), component: Report },
   { path: "checkOut", perm: pmac([APP_USER.customer]), component: CheckOut },
-  { path: "uploadCertificate", perm: pmac([APP_USER.admin, "manager", APP_USER.instructor]), component: AddCertificate },
-  { path: "certificates", perm: pmac([APP_USER.customer, APP_USER.admin, "manager", APP_USER.instructor]), component: Certificates },
+  // { path: "uploadCertificate", perm: pmac([APP_USER.admin, "manager", APP_USER.instructor]), component: AddCertificate },
+  // { path: "certificates", perm: pmac([APP_USER.customer, APP_USER.admin, "manager", APP_USER.instructor]), component: Certificates },
   { path: "settings", perm: pmac([APP_USER.admin]), component: Settings },
   { path: "updateWelcome", perm: pmac([APP_USER.admin, APP_USER.manager]), component: UpdateWelcome },
   {

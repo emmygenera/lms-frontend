@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { baseUrl, jsonValue } from "../../applocal";
+import { baseUrl, DateTime, EmjsF, jsonValue, objectJoin } from "../../applocal";
 import { Table, Typography } from "antd";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { pmac } from "../../routing/indexRoutes";
 import "../courses/user/page6/page6.scss";
 import Question from "../../services/question";
@@ -23,7 +23,10 @@ import APP_USER from "../../services/APP_USER";
 import orderService from "../../services/orders";
 import { toast } from "react-toastify";
 import settingsAPI from "../../services/settingsAPI";
+import addonsAPI from "../../services/addonsAPI";
 import QuickAddURL from "../../routing/QuickAddURL";
+import AddonList from "./components/AddonsList";
+import { setAddonsPurchase } from "../../redux/actions";
 
 const { Paragraph } = Typography;
 
@@ -35,9 +38,11 @@ export default function Dashboard() {
   const [questionsData, setQuestionsData] = useState([]);
   const [ticketsData, setTicketsData] = useState([]);
   const [messagesData, setMessagesData] = useState([]);
+  const [AddonsData, setAddonsData] = useState([]);
   const [Data, setData] = useState({
     courseOrder: [],
     orders: [],
+    addons: [],
     welcomeMessage: {},
   });
 
@@ -48,11 +53,14 @@ export default function Dashboard() {
   const [loading, setLoading] = useState({
     question: false,
     message: false,
+    addons: false,
     orders: false,
     ticket: false,
     courseOrderLoading: true,
     welcomeMessage: false,
   });
+
+  const dispatch = useDispatch();
 
   const isDashboardVisible = pmac(["admin", "manager"]).includes(userRl);
   const pageSize = 4;
@@ -88,6 +96,60 @@ export default function Dashboard() {
         );
       })
       .finally(() => setLoading_({ question: false }));
+  }
+
+  const AddToCart =
+    (data) =>
+    (cb = onAddCart) => {
+      return cb(data);
+    };
+
+  function getAddons() {
+    setLoading_({ addons: true });
+
+    addonsAPI
+      .userPurchaseOrNot(user.id, { pageSize: 50, pageNo: 1 })
+      .then(({ data: { data: data = [] } }) => {
+        // Promise.all(questions.map((item) => Question.delete(item._id))).then(({ data }) => console.log(data));
+        setAddonsData(
+          data.map((state, index) => {
+            const md = { open: "success", closed: "danger", active: "primary" };
+            const mode = md[String(state.status).toLowerCase()] || "info";
+            const { usd, jod } = state.price;
+            // EmjsF({ usd, jod }).toString();
+            return {
+              ...state,
+              link: state?.link,
+              title: state?.title,
+              subject: state?.description,
+              onClick: AddToCart(state),
+              details: (
+                <span>
+                  {/* {objectJoin({ usd, jod }, " - ").toUpperCase().replace(/:/gi, ": ")} */}
+                  <span dangerouslySetInnerHTML={{ __html: `<b>$</b> ${usd} - <b>د.ا</b> ${jod}`.toUpperCase() }} />
+                  <br />
+                  <strong>Expires At:</strong> {DateTime(state?.expire_at).stringFormat()}
+                </span>
+              ),
+              purchaseStatus: state?.purchaseStatus,
+              addonExpired: DateTime(state?.expire_at).expired(),
+            };
+          })
+        );
+      })
+      .finally(() => setLoading_({ addons: false }));
+  }
+  function onAddCart(data) {
+    // const { target: form } = e;
+    // e.preventDefault();
+    // const fd = new FormData(form).entries();
+    // const data = Object.fromEntries(fd);
+    // course_pkg, course
+    if (data?._id) {
+      dispatch(setAddonsPurchase({ [data._id]: data }));
+      toast.success("Addons added to cart!", { delay: "1s" });
+      // console.log({ [data.course._id]: data });
+    }
   }
 
   function getMessages() {
@@ -186,11 +248,12 @@ export default function Dashboard() {
       .finally(() => setLoading({ orders: false }));
   };
   useEffect(() => {
-    getQuestions();
+    // getQuestions();
     getTickets();
     getWelcomeMessage();
 
     if (userRl == APP_USER.customer) {
+      getAddons();
       getCourseOrderProgress();
     } else {
       getMessages();
@@ -238,6 +301,7 @@ export default function Dashboard() {
                 renderItems={({ data }) => <List {...data} />}
                 //
               /> */}
+
               <div className="mt-4">
                 {/* <Link to="/newCourse" className="btn btn-dark btn-block shadow rad_5 w-100 p-3">
                   + Quick Add
@@ -268,6 +332,16 @@ export default function Dashboard() {
             </>
           ) : (
             <>
+              {
+                <ListItem
+                  optionButton={false}
+                  loading={loading.addons}
+                  title="Addons"
+                  data={AddonsData}
+                  renderItems={({ data }) => <AddonList {...data} />}
+                  //
+                />
+              }
               {/* CustomerQuestion */}
               <div className="">{loading.courseOrderLoading ? <LoadingAnim /> : <EnrolledCourses data={EnrolledCourses_} />}</div>
             </>

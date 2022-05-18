@@ -1,4 +1,4 @@
-import { CLEAR_CART, SET_CART_ITEM, SET_PAYMENT_REQ } from "../types";
+import { CLEAR_ADDONS_PURCHASE, SET_ADDONS_PURCHASE as ADDONS_PURCHASE, CLEAR_CART, SET_CART_ITEM, SET_PAYMENT_REQ, ClEAR_PAYMENT_REQ } from "../types";
 
 export function setPayment(data = {}) {
   return (dispatch) =>
@@ -21,4 +21,15 @@ export function clearCartItem(data = {}) {
       payload: data,
     });
 }
+export function clearPaymentData() {
+  return (dispatch) =>
+    dispatch({
+      type: ClEAR_PAYMENT_REQ,
+      payload: {},
+    });
+}
+
+export const setAddonsPurchase = (data) => (dispatch) => dispatch({ type: ADDONS_PURCHASE, payload: data });
+export const clearAddonsPurchase = () => (dispatch) => dispatch({ type: CLEAR_ADDONS_PURCHASE, payload: {} });
+
 // export const setHeading = (title) => (dispatch) => dispatch({ type: SET_PAGE_TITLE, payload: title });

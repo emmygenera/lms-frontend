@@ -60,7 +60,7 @@ export default function CoursePending({ data: Course = [] }) {
         )}
         {CourseLessons?.slice(0, 1).map((item, idx) => (
           <div key={idx}>
-            <div
+            {/* <div
               className=" bg-white."
               //
               dangerouslySetInnerHTML={{
@@ -71,7 +71,7 @@ export default function CoursePending({ data: Course = [] }) {
                 ).replace(/(width=")[\w]+(")/gi, "$1100%$2"),
               }}
               // dangerouslySetInnerHTML={{ __html: htmlDecode(item?.html).replace(/(width=")[\w]+(")/gi, "$1100%$2") }}
-            />
+            /> */}
             <div className="p-3">
               <h4 className="m-0 mb-3 text-white resize-350 " style={{ fontWeight: 600 }}>
                 {item?.name}
@@ -91,7 +91,7 @@ export default function CoursePending({ data: Course = [] }) {
                     <path d="M1.32296 3.08472L0.779418 3.21342C0.514667 3.27344 0.290587 3.43416 0.148536 3.66493C0.00648451 3.89635 -0.0355306 4.16845 0.0304931 4.43186L0.648715 6.8754V8.66404H2.22394L3.22495 6.16248L3.38767 6.12581L1.32296 3.08472Z" fill="white" />
                   </svg>
                 </span>
-                Continue Lesson
+                Continue Course
               </Link>
             </div>
           </div>

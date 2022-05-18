@@ -32,6 +32,10 @@ import Courses from "./services/courses";
 import orderService from "./services/orders";
 import NotifcationAPI from "./services/NotificationAPI";
 import APP_USER from "./services/APP_USER";
+import GoogleAnalytics from "./components/GoogleAnalytics";
+import settingsAPI from "./services/settingsAPI";
+import { split, toCapitalize } from "./applocal";
+import setConfirmCode from "./pages/functions/setConfirmCode";
 
 const App = () => {
   const [layoutMode, setLayoutMode] = useState("static");
@@ -39,12 +43,25 @@ const App = () => {
   const [inputStyle, setInputStyle] = useState("outlined");
   const [ripple, setRipple] = useState(false);
   const [sidebarActive, setSidebarActive] = useState(true);
+  const [googleTagManagerId, setGoogleTagManagerId] = useState("");
+  const [SiteData, setSiteData] = useState({});
+
   const sidebar = useRef();
 
   const history = useHistory();
 
   let menuClick = false;
-
+  function getAppSettings() {
+    // console.log("settingsAPI");
+    settingsAPI.get().then(({ data: { data } }) => {
+      // console.log({ data }, "settingsAPI");
+      window.gtag("js", new Date());
+      setSiteData(data);
+      setConfirmCode(data?.delete_confirm_code);
+      window.gtag("config", data?.google_analytics_code);
+      setGoogleTagManagerId(data?.google_analytics_code);
+    });
+  }
   useEffect(() => {
     if (sidebarActive) {
       addClass(document.body, "body-overflow-hidden");
@@ -52,6 +69,10 @@ const App = () => {
       removeClass(document.body, "body-overflow-hidden");
     }
   }, [sidebarActive]);
+
+  useEffect(() => {
+    getAppSettings();
+  }, []);
 
   const onInputStyleChange = (inputStyle) => {
     setInputStyle(inputStyle);
@@ -132,6 +153,25 @@ const App = () => {
 
   const location = useLocation();
 
+  useEffect(() => {
+    if (googleTagManagerId) {
+      let pagePath = window.location.hash.split("/").pop();
+
+      if (!pagePath) {
+        pagePath = SiteData?.companyName + " | " + SiteData?.tagline;
+      } else pagePath = pagePath.replace(/[A-Z]+/g, ($) => " " + $);
+
+      document.title = pagePath.includes("viewCourse") ? pagePath : split(toCapitalize(pagePath), "?", 0);
+
+      if (userRl == APP_USER.customer || !userRl) {
+        window.gtag("set", "page_path", window.location.hash);
+        window.gtag("set", "page_title", pagePath);
+        window.gtag("event", "page_view");
+        // window.gtag("send", "pageview");
+      }
+    }
+  }, [window.location.hash, googleTagManagerId]);
+
   function getNotification() {
     const notf = userRl == APP_USER.customer ? NotifcationAPI.userNotifications : NotifcationAPI.adminNotifications;
     notf(user?.id).then(({ data: { data } }) => {
@@ -181,6 +221,7 @@ const App = () => {
 
   return (
     <div className={wrapperClass} onClick={onWrapperClick}>
+      {googleTagManagerId && <GoogleAnalytics googleTagManagerId={googleTagManagerId} />}
       {logedInToDashboard && (
         <Fragment>
           <AppTopbar onToggleMenu={onToggleMenu} />
@@ -196,7 +237,6 @@ const App = () => {
           </CSSTransition>
         </Fragment>
       )}
-
       <Router />
       {logedInToDashboard && <AppFooter />}
     </div>

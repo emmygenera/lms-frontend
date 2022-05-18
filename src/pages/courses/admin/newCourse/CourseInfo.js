@@ -125,7 +125,7 @@ const CourseInfo = ({ handleChange, initVals, form }) => {
       </Col>
       <Col md={6} className="pl-3">
         <Package handleChange={handleChange} initVals={initVals} />
-        <CourseAddon handleChange={handleChange} initVals={initVals} />
+        {/* <CourseAddon handleChange={handleChange} initVals={initVals} /> */}
       </Col>
     </Row>
   );

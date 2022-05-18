@@ -18,6 +18,7 @@ export const SET_PAGE_TITLE = "SET_PAGE_TITLE";
 export const SET_CART_ITEM = "SET_CART_ITEMS";
 export const CLEAR_CART = "CLEAR_CART";
 export const SET_PAYMENT_REQ = "SET_PAYMENT_REQ";
+export const ClEAR_PAYMENT_REQ = "ClEAR_PAYMENT_REQ";
 
 export const SET_PATH = "SET_PATH";
 
@@ -27,3 +28,5 @@ export const SET_INSTRUCTORS = "SET_INSTRUCTORS";
 
 export const GET_ORDERS = "GET_ORDERS";
 export const SET_ORDERS = "SET_ORDERS";
+export const SET_ADDONS_PURCHASE = "ADDONS_PURCHASE";
+export const CLEAR_ADDONS_PURCHASE = "CLEAR_ADDONS_PURCHASE";

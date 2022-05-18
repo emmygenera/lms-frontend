@@ -16,6 +16,7 @@ import InstructorService from "../../services/instructor";
 import "./index.scss";
 import PaginatedTable from "../../components/PaginatedTable";
 import { arrayObjectMerge, DateTime, nullNumber } from "../../applocal";
+import confirmDelete from "../functions/comfirmDelete";
 
 const Instructor = (props) => {
   const params = qs.parse(props.location.search, { ignoreQueryPrefix: true });
@@ -72,12 +73,14 @@ const Instructor = (props) => {
   };
 
   const deleteCat = async (id) => {
-    setDate((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
-    return await InstructorService.deleteinstructor(id);
+    if (confirmDelete()) {
+      setDate((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+      return await InstructorService.deleteinstructor(id);
+    }
   };
 
   // const updateCat = (data) => props.history.push(`/newInstructor?data=${JSON.stringify(data)}`);
@@ -171,13 +174,15 @@ const Instructor = (props) => {
   ];
 
   const deleteAll = () => {
-    return new Promise((resolve, reject) =>
-      Promise.all(selectedRowKeys.map(async (id) => await InstructorService.deleteinstructor(id))).then(() => {
-        getData();
-        resolve("");
-        setSelectedRowKeys([]);
-      })
-    );
+    if (confirmDelete()) {
+      return new Promise((resolve, reject) =>
+        Promise.all(selectedRowKeys.map(async (id) => await InstructorService.deleteinstructor(id))).then(() => {
+          getData();
+          resolve("");
+          setSelectedRowKeys([]);
+        })
+      );
+    }
   };
 
   // Testing

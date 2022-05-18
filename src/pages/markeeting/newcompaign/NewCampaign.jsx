@@ -38,7 +38,7 @@ const NewCampaign = ({ history, location }) => {
     const {
       data: { data: tipsData },
     } = await Marketing.getSingle(paramData).catch(() => toast.error("unable to get Leads data"));
-    if (EmjsF(tipsData?.users).isArray()) tipsData.users = tipsData.users.map((v) => v.userId);
+    if (EmjsF(tipsData?.users).isArray()) tipsData.users = tipsData.users.map((v) => EmjsF(v).toString());
     setInitVals(tipsData);
     setis_init(true);
   }
@@ -59,7 +59,7 @@ const NewCampaign = ({ history, location }) => {
   };
 
   const addNew = (vals) => {
-    vals.users = vals.users.map((v) => ({ userId: v }));
+    // vals.users = vals.users.map((v) => ({ userId: v }));
 
     // editorState;
     setLoading(true);
@@ -116,11 +116,14 @@ const NewCampaign = ({ history, location }) => {
                 placeholder={"Please select a User"}
                 defaultValues={[]}
               >
-                {users.map(({ _id, name, email }, index) => (
-                  <Select.Option key={index} value={_id}>
-                    {name || email}
-                  </Select.Option>
-                ))}
+                {users.map(
+                  ({ _id, name, email }, index) =>
+                    email && (
+                      <Select.Option key={index} value={email}>
+                        {email}
+                      </Select.Option>
+                    )
+                )}
               </Select>
             </Form.Item>
             <Form.Item label="Campaign Description" name="description" rules={[{ required: true }]}>
@@ -136,11 +139,20 @@ const NewCampaign = ({ history, location }) => {
             <Form.Item label="Send From" name="sendFrom" rules={[{ required: false }]}>
               <Input className="myinput" />
             </Form.Item>
-            <Form.Item label="Date" name="date" rules={[{ required: false }]}>
+            {/* <Form.Item label="Date" name="date" rules={[{ required: false }]}>
+              <Input className="myinput" type="date" />
+            </Form.Item> */}
+            <Form.Item label="Send Date" name="sendDate" rules={[{ required: true }]}>
               <Input className="myinput" type="date" />
             </Form.Item>
-            <Form.Item label="Send Date" name="sendDate" rules={[{ required: false }]}>
-              <Input className="myinput" type="date" />
+            <Form.Item label="Status" name="status" rules={[{ required: true }]}>
+              <Select showSearch className={"myinput"} placeholder={"Please select a User"} defaultValues={""}>
+                {["hold", "pending", "sent"].map((name, index) => (
+                  <Select.Option key={index} value={name}>
+                    {name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Form.Item>
               <Button className="mt-2 col-4 offset-sm-4 btnupdate" type="primary" danger backgroundColor={"red"} htmlType="submit" loading={loading} id="mybtnupdate">

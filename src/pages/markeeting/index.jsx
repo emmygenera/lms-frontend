@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import { pmac } from "../../routing/indexRoutes";
 import { arrayObjectMerge, DateTime, nullNumber } from "../../applocal";
 import { Popconfirm } from "antd";
+import confirmDelete from "../functions/comfirmDelete";
 
 const Marketing = (props) => {
   const params = qs.parse(props.location.search, { ignoreQueryPrefix: true });
@@ -73,27 +74,39 @@ const Marketing = (props) => {
   };
 
   const deleteCat = async (id) => {
-    setDate((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    await MarketingService.delete(id);
-    toast.success("Successfully deleted");
+    if (confirmDelete()) {
+      setDate((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      await MarketingService.delete(id);
+      toast.success("Successfully deleted");
+    }
   };
 
   const updateCat = (data) => props.history.push(`/newCampaign?data=${data._id}`);
+  function updateDT(id, status) {
+    getData(data.map((itm) => (itm?._id == id ? { ...itm, status } : itm)));
+  }
+
+  function mktservices({ id, data = { status: "hold" }, successMsg = "Status updated! Stopped." }) {
+    toast.info("Updating status...");
+
+    MarketingService.updateStatus({ id, data })
+      .then(() => {
+        updateDT(id, data.status);
+        toast.success(successMsg);
+      })
+      .catch(() => {
+        toast.error("Status update... Failed!");
+      });
+  }
   const stopEmailSending = (data) => {
-    toast.info("Stopping...");
-    setTimeout(() => {
-      toast.success("Stopped!");
-    }, 2000);
-    // console.log(data);
+    mktservices({ id: data?._id });
   };
-  const startEmailSending = (data) => {
-    toast.info("sending...");
-    setTimeout(() => {
-      toast.success("sent!");
-    }, 2000);
+
+  const startEmailSending = async (data) => {
+    mktservices({ id: data?._id, data: { status: "pending" }, successMsg: "Status updated!" });
   };
   const actions = (lead) => (
     <>

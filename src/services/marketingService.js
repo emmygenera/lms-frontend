@@ -7,7 +7,7 @@ const Marketing = {
   getSingle: (id) => http.get(`marketing/single/${id}`),
   delete: async (id) => await http.delete(`/marketing/delete/${id}`),
   update: async ({ id, data: marketing }) => await http.patch(`/marketing/update/${id}`, marketing),
-  updateStatus: async ({ id, data: marketing }) => await http.put(`/marketing/updateStatus/${id}`, marketing),
+  updateStatus: async ({ id, data: marketing }) => await http.patch(`/marketing/statusUpdate/${id}`, marketing),
 };
 
 export default Marketing;

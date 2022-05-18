@@ -19,6 +19,7 @@ import { pmac } from "../../routing/indexRoutes";
 import Courses from "../../services/courses";
 import PaginatedTable from "../../components/PaginatedTable";
 import filterState from "../components/filterState";
+import confirmDelete from "../functions/comfirmDelete";
 
 // const data = [
 //   {
@@ -113,13 +114,15 @@ const Tickets = (props) => {
   ];
 
   const deleteTicket = async (id) => {
-    return await Ticket.delete(id).then(() => {
-      toast.success("Successfully deleted");
-      setData((_data) => {
-        const newData = [..._data.filter(({ _id }) => _id !== id)];
-        return newData;
+    if (confirmDelete()) {
+      return await Ticket.delete(id).then(() => {
+        toast.success("Successfully deleted");
+        setData((_data) => {
+          const newData = [..._data.filter(({ _id }) => _id !== id)];
+          return newData;
+        });
       });
-    });
+    }
   };
 
   //const updateStaff = (staff) => props.history.push(`/newStaff?data=${staff}`);
@@ -223,12 +226,14 @@ const Tickets = (props) => {
   }
 
   const deleteAll = () => {
-    toast.info("Deleting...");
-    Promise.all(selectedRowKeys.map((id) => Ticket.delete(id))).then(() => {
-      setData((_data) => [..._data.filter(({ _id }) => !selectedRowKeys.some((id) => _id == id))]);
-      setSelectedRowKeys([]);
-      toast.success("Successfully deleted...");
-    });
+    if (confirmDelete()) {
+      toast.info("Deleting...");
+      Promise.all(selectedRowKeys.map((id) => Ticket.delete(id))).then(() => {
+        setData((_data) => [..._data.filter(({ _id }) => !selectedRowKeys.some((id) => _id == id))]);
+        setSelectedRowKeys([]);
+        toast.success("Successfully deleted...");
+      });
+    }
   };
 
   useEffect(() => {

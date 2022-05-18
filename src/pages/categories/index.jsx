@@ -12,6 +12,7 @@ import { CustomPagination, Actions } from "../../components";
 import Category from "../../services/category";
 import { EmjsF, alphabetIndex, DateTime, nullNumber } from "../../applocal";
 import { toast } from "react-toastify";
+import confirmDelete from "../functions/comfirmDelete";
 
 const Categories = (props) => {
   // :TODO: REDUX
@@ -28,12 +29,14 @@ const Categories = (props) => {
   const [pageData, setPageData] = useState({ currentPage: 0, nextPage: params.pageNo || 1, previousPage: 0, total: 0, offsetBy: params.pageSize || 4, totalPages: 0 });
 
   const deleteCat = async (id) => {
-    setDate((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
-    return await Category.deleteCategory(id);
+    if (confirmDelete()) {
+      setDate((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+      return await Category.deleteCategory(id);
+    }
   };
 
   const updateCat = ({ name, _id: id, parent }) => props.history.push(`/newCategory?id=${id}&parent=${parent}&name=${name}`);

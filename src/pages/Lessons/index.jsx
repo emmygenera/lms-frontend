@@ -10,6 +10,7 @@ import lesson from "../../services/lesson";
 import moment from "moment";
 import { toast } from "react-toastify";
 import { DateTime, nullNumber } from "../../applocal";
+import confirmDelete from "../functions/comfirmDelete";
 const columns = [
   {
     title: "Lesson ID",
@@ -72,12 +73,14 @@ const Lessons = (props) => {
   const [dataSource, setDataSource] = useState([]);
 
   const deleteCat = async (id) => {
-    setDataSource((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
-    return await lesson.deletelesson(id);
+    if (confirmDelete()) {
+      setDataSource((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+      return await lesson.deletelesson(id);
+    }
   };
   const updateCat = (data) => props.history.push(`/newLesson?data=${data._id}`);
   const actions = (category) => <Actions component={category} deleteFun={deleteCat} updateFun={updateCat} />;

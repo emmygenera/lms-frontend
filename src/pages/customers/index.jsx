@@ -13,6 +13,7 @@ import User from "../../services/user";
 import orderService from "../../services/orders";
 import { alphabetIndex, arrayObjectMerge, DateTime, jsonValue, nullNumber } from "../../applocal";
 import PaginatedTable from "../../components/PaginatedTable";
+import confirmDelete from "../functions/comfirmDelete";
 
 const Customers = (props) => {
   const history = useHistory();
@@ -49,12 +50,14 @@ const Customers = (props) => {
   }, [search]);
 
   const deleteCus = async (id) => {
-    setDate((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
-    return await Customer.deleteCustomer(id);
+    if (confirmDelete()) {
+      setDate((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+      return await Customer.deleteCustomer(id);
+    }
   };
 
   const updateCus = (data) => props.history.push(`/newCustomer?data=${data}`);
@@ -113,12 +116,14 @@ const Customers = (props) => {
   };
 
   const deleteAll = async () => {
-    Promise.all(selectedRowKeys.map((_id) => Customer.deleteCustomer(_id))).then(() => {
-      setDate((_data) => [..._data.filter(({ _id }) => !selectedRowKeys.some((id) => _id == id))]);
-      setSelectedRowKeys([]);
+    if (confirmDelete()) {
+      Promise.all(selectedRowKeys.map((_id) => Customer.deleteCustomer(_id))).then(() => {
+        setDate((_data) => [..._data.filter(({ _id }) => !selectedRowKeys.some((id) => _id == id))]);
+        setSelectedRowKeys([]);
 
-      toast.success("Successfully deleted");
-    });
+        toast.success("Successfully deleted");
+      });
+    }
   };
 
   const columns = [

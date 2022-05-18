@@ -21,6 +21,7 @@ export {
   arrayObjectMerge,
   toURLString,
   htmlEncode,
+  objectJoin,
 } from "./src/js/Function";
 export { default as stripTags } from "./src/js/stripTags";
 export { default as alphabetIndex, charIndex, alphabetIndexSum } from "./src/js/alphabetIndex";
@@ -31,3 +32,4 @@ export { default as CountryData } from "./countryData.json";
 export { default as RandomString } from "./src/js/RandomString";
 // CountryData;
 export { object_entries, object_merge, Emjs, EmjsF, split, implode } from "./src/js/Emjs";
+export { base64Decode, base64Encode } from "./src/js/encodeString";

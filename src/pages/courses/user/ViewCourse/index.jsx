@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import { pmac } from "../../../../routing/indexRoutes";
 import APP_USER from "../../../../services/APP_USER";
 import { packagesValue } from "../../component/Data.json";
+import confirmDelete from "../../../functions/comfirmDelete";
 
 // import $ from "jquery";
 // import "bootstrap";
@@ -135,9 +136,11 @@ const SeventhPage = ({ location, history }) => {
   }
 
   async function delLesson(id) {
-    await lesson.deletelesson(id);
-    setCourseLessons((_data) => _data.filter(({ _id }) => _id !== id));
-    toast.success("Successfully deleted");
+    if (confirmDelete()) {
+      await lesson.deletelesson(id);
+      setCourseLessons((_data) => _data.filter(({ _id }) => _id !== id));
+      toast.success("Successfully deleted");
+    }
   }
 
   if (CourseLessonLoading || CourseOrderLoading || CourseLoading) return <LoadingAnim />;
@@ -202,53 +205,62 @@ const SeventhPage = ({ location, history }) => {
               <i className="col-sm-2" class="bi bi-three-dots-vertical"></i>
             </Col> */}
           </Row>
-          <div className="shadow-sm bg-white outline-shadow p-3" style={{ borderRadius: "10px" }}>
+          <ul className="shadow-sm bg-white outline-shadow p-3 pt-0" style={{ borderRadius: "10px", border: 0, margin: 0, listStyleType: "decimal" }}>
             <Col xs={12} className="">
               <h5 className=".col-sm-4" style={{ fontWeight: "bold" }}>
                 Lesson PlayLists
               </h5>
             </Col>
-            {CourseLessons.map((item, idx) => {
-              const mks = jsonValue(MarkedAsComplete, mk[0]).get(idx);
-              const clStatus = toLowerCase(item?.completedStatus) == "completed" || mks?.isComplete;
-              // var btnClass = classNames("btn", this.props.className, {
-              //   "btn-pressed": this.state.isPressed,
-              //   "btn-over": !this.state.isPressed && this.state.isHovered,
-              // });
-              return (
-                <div key={idx} className="row shadow-sm">
-                  <div className="col-12">
-                    <a data-slide-to={idx} data-slide-id={"#carouselExampleControls"} href="javascript:void(0)" onClick={() => onClickToNext(idx, CourseLessons.length)}>
-                      <Paragraph ellipsis={{ rows: 2, expandable: false, symbol: " " }} className="card-text fz-1">
-                        <b>{item?.name}</b>
-                      </Paragraph>
-                      <Paragraph ellipsis={{ rows: 2, expandable: false, symbol: " " }} className="card-text fz-1">
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: item?.description,
-                          }}
-                        />
-                      </Paragraph>
-                    </a>
-                  </div>
-                  <div className="col-12">
-                    {mgn ? (
-                      <div>
-                        <Link className="p-2" to={"newLesson?data=" + item?._id + "&cid=" + dataParam}>
-                          <i class="bi bi-pencil" />
-                        </Link>
-                        <button className={"btn text-danger"} onClick={() => delLesson(item?._id)}>
-                          <i class="bi bi-trash" />
-                        </button>
-                      </div>
-                    ) : (
-                      <p className={"text-" + (clStatus ? "success" : "danger")}>{clStatus ? "Completed" : "Not Watched"}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+            <div style={{ maxHeight: 500, overflowY: "auto" }}>
+              {CourseLessons.map((item, idx) => {
+                const mks = jsonValue(MarkedAsComplete, mk[0]).get(idx);
+                const clStatus = toLowerCase(item?.completedStatus) == "completed" || mks?.isComplete;
+                // var btnClass = classNames("btn", this.props.className, {
+                //   "btn-pressed": this.state.isPressed,
+                //   "btn-over": !this.state.isPressed && this.state.isHovered,
+                // });
+                const idx_ = idx - 1 == -1 ? idx : idx - 1;
+                const canNext = toLowerCase(CourseLessons[idx_]?.completedStatus) == "completed";
+                //console.log({ canNext });
+
+                return (
+                  <li key={idx} className="row shadow-sm mb-3  shadow-none bd-dark-1 pb-2">
+                    <div className={`col-${mgn ? 12 : 8} p-0`}>
+                      <a data-slide-to={idx} data-slide-id={"#carouselExampleControls"} href="javascript:void(0)" onClick={() => canNext && onClickToNext(idx, CourseLessons.length)}>
+                        <Paragraph ellipsis={{ rows: 2, expandable: false, symbol: " " }} className="card-text fz-1">
+                          <span>{idx + 1}. </span>
+                          {!mgn ? item?.name : <b>{item?.name}</b>}
+                        </Paragraph>
+                        {mgn && (
+                          <Paragraph ellipsis={{ rows: 2, expandable: false, symbol: " " }} className="card-text fz-1">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: item?.description,
+                              }}
+                            />
+                          </Paragraph>
+                        )}
+                      </a>
+                    </div>
+                    <div className={`col-${mgn ? 12 : 4}  p-0`}>
+                      {mgn ? (
+                        <div className="d-flex flex-direction-wrap">
+                          <Link className="p-2" to={"newLesson?data=" + item?._id + "&cid=" + dataParam}>
+                            <i class="bi bi-pencil" />
+                          </Link>
+                          <button className={"btn text-danger"} onClick={() => delLesson(item?._id)}>
+                            <i class="bi bi-trash" />
+                          </button>
+                        </div>
+                      ) : (
+                        <p className={"text-" + (clStatus ? "success" : "danger")}>{clStatus ? "Completed" : "Not Watched"}</p>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </div>
+          </ul>
 
           {/* 
           <div className="row shadow-sm">

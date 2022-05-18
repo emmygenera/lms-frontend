@@ -15,6 +15,7 @@ import LoadingAnim from "../../../components/LoadingAnim";
 import { setSearchString } from "../../../redux/actions/generalActions";
 import APP_USER from "../../../services/APP_USER";
 import { nullNumber } from "../../../applocal";
+import confirmDelete from "../../functions/comfirmDelete";
 
 const limitSize = 16;
 const AdminCourses = ({ history, location }) => {
@@ -60,12 +61,14 @@ const AdminCourses = ({ history, location }) => {
   }, [page, pageSize, search]);
   // console.log(params.search, search);
   const deleteCourse = async (id) => {
-    setCourses((_data) => {
-      const newData = [...courses.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
-    return await Courses.deleteOne(id);
+    if (confirmDelete()) {
+      setCourses((_data) => {
+        const newData = [...courses.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+      return await Courses.deleteOne(id);
+    }
   };
   const isLoadmore = pageData.totalPages >= pageData.nextPage;
 

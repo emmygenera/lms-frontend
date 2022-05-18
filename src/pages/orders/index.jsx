@@ -17,6 +17,7 @@ import { DateTime, nullNumber } from "../../applocal";
 import orderService from "../../services/orders";
 import { packageSrtingValue } from "../courses/component/Data.json";
 import filterState from "../components/filterState";
+import confirmDelete from "../functions/comfirmDelete";
 
 const Orders = (props) => {
   const { data: dataParam, ...params } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
@@ -172,12 +173,14 @@ const Orders = (props) => {
   };
 
   const deleteCat = async (id) => {
-    setDate((_data) => {
-      const newData = [..._data.filter(({ _id }) => _id !== id)];
-      return newData;
-    });
-    toast.success("Successfully deleted");
-    return await OrderService.deleteorder(id);
+    if (confirmDelete()) {
+      setDate((_data) => {
+        const newData = [..._data.filter(({ _id }) => _id !== id)];
+        return newData;
+      });
+      toast.success("Successfully deleted");
+      return await OrderService.deleteorder(id);
+    }
   };
 
   // const updateCat = (data) => props.history.push(`/newInstructor?data=${JSON.stringify(data)}`);
@@ -212,15 +215,17 @@ const Orders = (props) => {
   //   return <LoadingAnim />;
   // }
   const deleteAll = () => {
-    setLoading(true);
-    return new Promise((resolve, reject) =>
-      Promise.all(selectedRowKeys.map(async (id) => await orderService.deleteorder(id))).then(() => {
-        getData();
-        resolve("");
-        setSelectedRowKeys([]);
-        toast.success("Successfully deleted");
-      })
-    );
+    if (confirmDelete()) {
+      setLoading(true);
+      return new Promise((resolve, reject) =>
+        Promise.all(selectedRowKeys.map(async (id) => await orderService.deleteorder(id))).then(() => {
+          getData();
+          resolve("");
+          setSelectedRowKeys([]);
+          toast.success("Successfully deleted");
+        })
+      );
+    }
   };
   return (
     <>

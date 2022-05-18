@@ -87,7 +87,11 @@ const LivePage = ({ clickToNextSlide, reloadFrame, MarkedAsComplete: [MarkedAsCo
                     activeString = "active";
                     lessonActive = true;
                   }
-                  const _isComp = isMarkedAsComplete[idx] || item?.completedStatus || MarkedAsComplete[idx]?.isComplete,
+                  // const idx_ = idx - 1 == -1 ? idx : idx - 1;
+                  const canNext = toLowerCase(item?.completedStatus) == "completed";
+                  // console.log({ idx_, canNext, completedStatus: item?.completedStatus });
+
+                  const _isComp = isMarkedAsComplete[idx] || toLowerCase(item?.completedStatus) == "completed" || MarkedAsComplete[idx]?.isComplete,
                     isComp = _isComp == "null" ? false : _isComp;
                   // console.log(clickToNextSlide, clickToNextSlide[idx]?.active ? idx : "");
                   const className = classNames("carousel-item ", { [activeString]: lessonActive });
@@ -145,7 +149,7 @@ const LivePage = ({ clickToNextSlide, reloadFrame, MarkedAsComplete: [MarkedAsCo
                           {!isManagement && (
                             <div className="p-3">
                               <button disabled={isComp} type="button" onClick={() => markLessionsCompleted(item, idx)} className="btn btn-danger btn-sm rad_10 px-3">
-                                {isMarkedAsComplete[idx] ? "Marking Lesson..." : isComp ? "completed" : "Mark As Complete"}
+                                {isMarkedAsComplete[idx] ? "Marking Lesson..." : isComp ? "Completed" : "Mark As Complete"}
                               </button>
                             </div>
                           )}
@@ -156,7 +160,7 @@ const LivePage = ({ clickToNextSlide, reloadFrame, MarkedAsComplete: [MarkedAsCo
                                 type="button"
                                 data-target="#carouselExampleControls"
                                 data-slide="next"
-                                //
+                                disabled={!canNext}
                                 onClick={() => {
                                   setNextSlide(idx);
                                   reloadFrame();
@@ -185,54 +189,56 @@ const LivePage = ({ clickToNextSlide, reloadFrame, MarkedAsComplete: [MarkedAsCo
               </div>
             </div>
           </div>
-          <Row className="div2 py-5 px-2 shadow-sm mx-2. rounded justify-content-around/  mt-2" style={{}}>
-            <Col md={8} className="">
-              <article
-                className="mt-2"
-                dangerouslySetInnerHTML={{
-                  __html: course?.description,
-                }}
-              />
-            </Col>
-            <Col md={4} className="mt-5">
-              <div className="bl-dark-1 pl-3">
-                {isManagement ? (
-                  <DList
-                    icon={<i class="bi bi-currency-dollar"></i>}
-                    name="Course Price"
-                    title={returnPackages({
-                      render: ({ duration, usd, jod, index }) => (
-                        <div className="mb-1 pb-1" key={index}>
-                          {String(duration).replace("_", " ")} - {usd} USD - {jod} JOD <br />
-                        </div>
-                      ),
-                    })}
-                  />
-                ) : (
-                  <>
+          {isManagement && (
+            <Row className="div2 py-5 px-2 shadow-sm mx-2. rounded justify-content-around/  mt-2" style={{}}>
+              <Col md={8} className="">
+                <article
+                  className="mt-2"
+                  dangerouslySetInnerHTML={{
+                    __html: course?.description,
+                  }}
+                />
+              </Col>
+              <Col md={4} className="mt-5">
+                <div className="bl-dark-1 pl-3">
+                  {isManagement ? (
                     <DList
-                      icon={<i class="bi bi-eye"></i>}
-                      name="Watch Progress"
-                      title={
-                        <>
-                          <div className="pb-1">
-                            {lessonCompleted}/{lessonTotal}
+                      icon={<i class="bi bi-currency-dollar"></i>}
+                      name="Course Price"
+                      title={returnPackages({
+                        render: ({ duration, usd, jod, index }) => (
+                          <div className="mb-1 pb-1" key={index}>
+                            {String(duration).replace("_", " ")} - {usd} USD - {jod} JOD <br />
                           </div>
-                          <div className="progress" style={{ height: ".4rem" }}>
-                            <div className="progress-bar" style={{ width: lessonProg + "%", backgroundColor: lessonProg == 100 && "#2bc32b" }}></div>
-                          </div>
-                        </>
-                      }
+                        ),
+                      })}
                     />
-                    <DList icon={<i class="bi bi-clock"></i>} name="Expires In" title={expireInString} />{" "}
-                  </>
-                )}
-                <DList icon={<i class="bi bi-calendar4-week"></i>} name="Date" title={course?.createdAt && DateTime(course?.createdAt).stringFormat()} />
-              </div>
-            </Col>
-          </Row>
+                  ) : (
+                    <>
+                      <DList
+                        icon={<i class="bi bi-eye"></i>}
+                        name="Watch Progress"
+                        title={
+                          <>
+                            <div className="pb-1">
+                              {lessonCompleted}/{lessonTotal}
+                            </div>
+                            <div className="progress" style={{ height: ".4rem" }}>
+                              <div className="progress-bar" style={{ width: lessonProg + "%", backgroundColor: lessonProg == 100 && "#2bc32b" }}></div>
+                            </div>
+                          </>
+                        }
+                      />
+                      <DList icon={<i class="bi bi-clock"></i>} name="Expires In" title={expireInString} />{" "}
+                    </>
+                  )}
+                  <DList icon={<i class="bi bi-calendar4-week"></i>} name="Date" title={course?.createdAt && DateTime(course?.createdAt).stringFormat()} />
+                </div>
+              </Col>
+            </Row>
+          )}
         </div>
-        <div className=" mt-3 outline-shadow bg-white ">
+        {/* <div className=" mt-3 outline-shadow bg-white ">
           <h4 className="p-3 fz-2.">Attachments and Addons</h4>
           <div className="row mt-3">
             <Tables
@@ -258,7 +264,7 @@ const LivePage = ({ clickToNextSlide, reloadFrame, MarkedAsComplete: [MarkedAsCo
               loading={CourseLessonLoading}
             />
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

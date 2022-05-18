@@ -45,7 +45,7 @@ export default function Welcome({ data = {}, loading }) {
                 {/* Copyright (C) Microsoft Corporation. All rights reserved. Try the new cross-platform PowerShell Copyright (C) Microsoft Corporation. All rights reserved. Try the new cross-platform PowerShell Copyright (C) Microsoft Corporation. All rights reserved. Try the new cross-platform PowerShell */}
               </p>
               <div>
-                <a href={data?.url && "javascript:void(0)"} className="btn btn-danger rad_5 .p-3 mr-3">
+                <a href={data?.url || "javascript:void(0)"} target="_blank" className="btn btn-danger rad_5 .p-3 mr-3">
                   Learn More &nbsp;&nbsp;&rarr;
                 </a>
                 <a href="javascript:void(0)" onClick={onRemindMe} className="p-2" style={{ textDecoration: "underline", color: "#2b9035" }}>
